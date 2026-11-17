@@ -34,7 +34,7 @@ Designed for users who want a fast, consistent file browsing and management expe
 | Styling           | Tailwind CSS 3.4.1, PostCSS 8                            |
 | Backend / Runtime | Tauri 2.12 (`plugin-fs`, `plugin-dialog`, `plugin-os`, `plugin-opener`) |
 | Package managers  | Yarn (`yarn.lock`), Cargo (`src-tauri/Cargo.lock`)       |
-| Tests             | Vitest ^2.1.8 (frontend unit tests), `cargo test` (Rust) |
+| Tests             | Vitest ^2.1.8, React Testing Library ^16.1.0 (`jsdom`), `cargo test` |
 | Target platforms  | Windows, Linux, macOS, Android, iOS                      |
 
 Planned: Android/iOS mobile scaffolding (`yarn tauri android init` / `yarn tauri ios init`).
@@ -102,8 +102,9 @@ tauri-2.0-nextjs-14.2.23-template/
 │       ├── file-system/        # VirtualPath contracts, path resolver, Tauri FS/Dialog/Opener  adapters, & tests
 │       ├── navigation/         # Pure history stack, sorting, filtering, & unit tests
 │       ├── selection/          # Pure item selection, clipboard state, & unit tests
-│       ├── explorer/           # Responsive ExplorerShell, toolbars, grid/list views, & formatters
+│       ├── explorer/           # Responsive ExplorerShell, toolbars, grid/list views, & UI tests
 │       └── settings/           # Light/Dark/System theme logic, storage hook, SettingsModal, & tests
+│   └── test-support/           # JSDOM test setup and in-memory Fake Tauri File System harness
 └── src-tauri/
     ├── capabilities/           # Tauri v2 permission scopes (desktop & mobile)
     ├── icons/                  # App icons for all target platforms
@@ -134,6 +135,7 @@ yarn build
 
 > Newest entry on top. One line per change: date — what changed.
 
+- `2026-11-17` — Added `APP_TEST_CHECKLIST.md`, configured Layer 2 UI integration testing (`@testing-library/react`, `jsdom`, `fake-tauri-fs.ts`), and added `ExplorerShell.test.tsx` (Part 1).
 - `2026-11-17` — Completed Step 5 UI polish: decluttered `ActionToolbar` with `ActionIcons`, updated `NamePromptModal` for Light/Dark themes, and streamlined `ExplorerShell` status bar.
 - `2026-11-17` — Upgraded `FileEntryCollection` with category-colored folder/file icons (`FileEntryIcons`), one-click selection checkboxes, and structured List view headers.
 - `2026-11-17` — Redesigned `ExplorerToolbar` with icon navigation cluster (`ToolbarIcons`), recessed breadcrumb address bar, search clear button, and segmented Grid/List view toggle.
