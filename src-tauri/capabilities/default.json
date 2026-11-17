@@ -11,6 +11,14 @@
     "fs:default",
     "fs:allow-read",
     "fs:allow-write",
+    "fs:allow-read-dir",
+    "fs:allow-stat",
+    "fs:allow-mkdir",
+    "fs:allow-write-text-file",
+    "fs:allow-rename",
+    "fs:allow-remove",
+    "fs:allow-copy-file",
+    "fs:allow-exists",
     {
       "identifier": "fs:scope",
       "allow": [
