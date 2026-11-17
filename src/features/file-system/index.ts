@@ -25,3 +25,24 @@ export {
   joinVirtualPath,
   normalizeRelativePath,
 } from "./path-resolver";
+
+export type { NameValidationResult } from "./validation";
+export { validateEntryName } from "./validation";
+
+export type { TauriFsTarget } from "./tauri-target";
+export { resolveNativeSystemPath, resolveTauriFsTarget } from "./tauri-target";
+
+export {
+  getAvailableStorageRoots,
+  listDirectoryEntries,
+} from "./directory-reader";
+
+export {
+  createDirectory,
+  createTextFile,
+  deleteFileEntries,
+  openEntryWithSystem,
+  pasteFileEntries,
+  pickCustomFolder,
+  renameFileEntry,
+} from "./file-operations";
