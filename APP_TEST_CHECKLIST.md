@@ -9,7 +9,7 @@
 
 # One Place — Application Test Plan & Cross-Platform Checklist
 
-**Last updated:** `2026-11-17`
+**Last updated:** `2026-11-18`
 
 ---
 
@@ -108,50 +108,50 @@ Check off `[x]` for each target platform (`Win` = Windows, `Linux` = Ubuntu Linu
 
 | # | Test Scenario | Expected Result | Win | Linux | And |
 | - | ------------- | --------------- | :-: | :---: | :-: |
-| 1.1 | Launch app initially | Opens `Documents` root and lists real files/folders with item count in the footer | [x] | [ ] | [x] |
-| 1.2 | Click each standard root (`Documents`, `Downloads`, `Pictures`, `Videos`, `Music`, `App Storage`) | Loads the corresponding OS user folder without error | [x] | [ ] | [x] |
-| 1.3 | Check `Home` root visibility | `Home` is visible and browsable on Windows/Linux, and hidden on Android | [x] | [ ] | [x] |
-| 1.4 | Click `Open Folder...` (`Folder` on mobile) | Opens native OS folder picker; selecting a folder shows `Mounted Folder` in sidebar and lists contents | [x] | [ ] | [x] |
-| 1.5 | Open a subfolder, then click `Back`, `Forward`, `Up`, and `Refresh` | History buttons enable/disable accurately and return to expected folders | [x] | [ ] | [x] |
-| 1.6 | Click an ancestor segment in the Breadcrumb Address Bar | Jumps directly to that parent folder | [x] | [ ] | [x] |
+| 1.1 | Launch app initially | Opens `Documents` root and lists real files/folders with item count in the footer | [x] | [x] | [x] |
+| 1.2 | Click each standard root (`Documents`, `Downloads`, `Pictures`, `Videos`, `Music`, `App Storage`) | Loads the corresponding OS user folder without error | [x] | [x] | [x] |
+| 1.3 | Check `Home` root visibility | `Home` is visible and browsable on Windows/Linux, and hidden on Android | [x] | [x] | [x] |
+| 1.4 | Click `Open Folder...` (`Folder` on mobile) | Opens native OS folder picker; selecting a folder shows `Mounted Folder` in sidebar and lists contents | [x] | [x] | [x] |
+| 1.5 | Open a subfolder, then click `Back`, `Forward`, `Up`, and `Refresh` | History buttons enable/disable accurately and return to expected folders | [x] | [x] | [x] |
+| 1.6 | Click an ancestor segment in the Breadcrumb Address Bar | Jumps directly to that parent folder | [x] | [x] | [x] |
 
 ### 5.2 View Modes, Sorting & Filtering
 
 | # | Test Scenario | Expected Result | Win | Linux | And |
 | - | ------------- | --------------- | :-: | :---: | :-: |
-| 2.1 | Switch between `Grid` and `List` view | Grid shows cards with large category icons; List shows table headers (`Name`, `Modified`, `Size`, `Action`) | [x] | [ ] | [x] |
-| 2.2 | Type in `Filter current folder...` and click `×` | Filters entries in real time by name; clicking `×` restores full folder list | [x] | [ ] | [x] |
-| 2.3 | Change `Sort` field (`Name`, `Size`, `Modified`, `Type`) and toggle `↑ ASC` / `↓ DESC` | Entries re-sort immediately while folders remain grouped above files | [x] | [ ] | [x] |
-| 2.4 | Toggle `Hidden` button | Dotfiles (e.g., `.git`, `.env`) appear when active and hide when inactive | [x] | [ ] | [x] |
+| 2.1 | Switch between `Grid` and `List` view | Grid shows cards with large category icons; List shows table headers (`Name`, `Modified`, `Size`, `Action`) | [x] | [x] | [x] |
+| 2.2 | Type in `Filter current folder...` and click `×` | Filters entries in real time by name; clicking `×` restores full folder list | [x] | [x] | [x] |
+| 2.3 | Change `Sort` field (`Name`, `Size`, `Modified`, `Type`) and toggle `↑ ASC` / `↓ DESC` | Entries re-sort immediately while folders remain grouped above files | [x] | [x] | [x] |
+| 2.4 | Toggle `Hidden` button | Dotfiles (e.g., `.git`, `.env`) appear when active and hide when inactive | [x] | [x] | [x] |
 
 ### 5.3 Selection Mechanics (Desktop & Touch)
 
 | # | Test Scenario | Expected Result | Win | Linux | And |
 | - | ------------- | --------------- | :-: | :---: | :-: |
-| 3.1 | Click a card or row body | Selects that single item and shows contextual selection pill in action bar | [x] | [ ] | [x] |
-| 3.2 | Click the checkmark badge on multiple items | Toggles each item in/out of selection without clearing other selected items | [x] | [ ] | [x] |
-| 3.3 | Enable `Multi-Select` button and tap/click items | Every tap/click toggles selection (touch-friendly multi-select) | [x] | [ ] | [x] |
-| 3.4 | Click `Select All` then `Clear` | Selects all visible items in folder, then clears selection | [x] | [ ] | [x] |
+| 3.1 | Click a card or row body | Selects that single item and shows contextual selection pill in action bar | [x] | [x] | [x] |
+| 3.2 | Click the checkmark badge on multiple items | Toggles each item in/out of selection without clearing other selected items | [x] | [x] | [x] |
+| 3.3 | Enable `Multi-Select` button and tap/click items | Every tap/click toggles selection (touch-friendly multi-select) | [x] | [x] | [x] |
+| 3.4 | Click `Select All` then `Clear` | Selects all visible items in folder, then clears selection | [x] | [x] | [x] |
 
 ### 5.4 File & Folder Operations (CRUD & System Opener)
 
 | # | Test Scenario | Expected Result | Win | Linux | And |
 | - | ------------- | --------------- | :-: | :---: | :-: |
-| 4.1 | Click `New Folder`, submit invalid name (`CON` or `a/b`), then valid name | Shows inline validation error for invalid name; creates folder on disk for valid name | [x] | [ ] | [x] |
-| 4.2 | Click `New File` and confirm `notes.txt` | Creates empty text file in active directory and refreshes list | [x] | [ ] | [x] |
-| 4.3 | Select 1 item, click `Rename`, enter new name | Renames file/folder on disk and updates view | [x] | [ ] | [x] |
-| 4.4 | Select item(s), click `Copy`, open another folder, click `Paste Here` | Copies selected file(s) into destination folder | [x] | [ ] | [x] |
-| 4.5 | Select item(s), click `Cut`, open another folder, click `Paste Here` | Moves selected item(s) to destination and clears clipboard button | [x] | [ ] | [x] |
-| 4.6 | Select test item(s) and click `Delete` | Removes selected item(s) from disk and updates item count | [x] | [ ] | [x] |
-| 4.7 | Double-click a file or click its `Open` button | Opens the file in the OS default application | [x] | [ ] | [x] |
+| 4.1 | Click `New Folder`, submit invalid name (`CON` or `a/b`), then valid name | Shows inline validation error for invalid name; creates folder on disk for valid name | [x] | [x] | [x] |
+| 4.2 | Click `New File` and confirm `notes.txt` | Creates empty text file in active directory and refreshes list | [x] | [x] | [x] |
+| 4.3 | Select 1 item, click `Rename`, enter new name | Renames file/folder on disk and updates view | [x] | [x] | [x] |
+| 4.4 | Select item(s), click `Copy`, open another folder, click `Paste Here` | Copies selected file(s) into destination folder | [x] | [x] | [x] |
+| 4.5 | Select item(s), click `Cut`, open another folder, click `Paste Here` | Moves selected item(s) to destination and clears clipboard button | [x] | [x] | [x] |
+| 4.6 | Select test item(s) and click `Delete` | Removes selected item(s) from disk and updates item count | [x] | [x] | [x] |
+| 4.7 | Double-click a file or click its `Open` button | Opens the file in the OS default application | [x] | [x] | [x] |
 
 ### 5.5 Themes & Responsive Layout
 
 | # | Test Scenario | Expected Result | Win | Linux | And |
 | - | ------------- | --------------- | :-: | :---: | :-: |
-| 5.1 | Open `Settings` and switch between `Light`, `Dark`, and `System` | Entire UI (sidebar, address bar, cards, modals) updates contrast immediately | [x] | [ ] | [x] |
-| 5.2 | Close and relaunch app after selecting a theme | Saved theme preference persists via `localStorage` | [x] | [ ] | [x] |
-| 5.3 | Resize window narrow (`< 768px`) or run on Android | Left sidebar hides and fixed bottom icon bar appears cleanly | [x] | [ ] | [x] |
+| 5.1 | Open `Settings` and switch between `Light`, `Dark`, and `System` | Entire UI (sidebar, address bar, cards, modals) updates contrast immediately | [x] | [x] | [x] |
+| 5.2 | Close and relaunch app after selecting a theme | Saved theme preference persists via `localStorage` | [x] | [x] | [x] |
+| 5.3 | Resize window narrow (`< 768px`) or run on Android | Left sidebar hides and fixed bottom icon bar appears cleanly | [x] | [x] | [x] |
 
 ---
 
