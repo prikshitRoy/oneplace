@@ -1,6 +1,16 @@
-// Contextual action bar for creating items and acting on selected or clipboard entries.
+// Contextual action bar with icon buttons for creating items and acting on selections.
 
 import type { ClipboardState } from "@/features/selection";
+import {
+  CheckSquareIcon,
+  ClipboardPasteIcon,
+  CopyIcon,
+  EditPencilIcon,
+  FilePlusIcon,
+  ScissorsCutIcon,
+  TrashDeleteIcon,
+} from "./ActionIcons";
+import { FolderPlusIcon } from "./ExplorerIcons";
 
 export interface ActionToolbarProps {
   readonly selectedCount: number;
@@ -18,7 +28,7 @@ export interface ActionToolbarProps {
   readonly onDeleteSelected: () => void;
 }
 
-/** Renders folder/file creation buttons and selection/clipboard actions. */
+/** Renders primary creation buttons and a contextual selection/clipboard bar when active. */
 export function ActionToolbar({
   selectedCount,
   isMultiSelectMode,
@@ -38,98 +48,119 @@ export function ActionToolbar({
   const isSingleSelected = selectedCount === 1;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-800 bg-neutral-900/40 px-3 py-2 text-xs">
-      {/* Creation and touch multi-select controls */}
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-panel/60 px-3.5 py-2 text-xs">
+      {/* Left group: Primary creation actions and selection helpers */}
       <div className="flex flex-wrap items-center gap-1.5">
         <button
           type="button"
           onClick={onOpenCreateFolder}
-          className="rounded bg-sky-600 px-2.5 py-1 font-medium text-white hover:bg-sky-500"
+          className="flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-1.5 font-semibold text-white shadow-sm transition-colors hover:bg-sky-500"
         >
-          + New Folder
+          <FolderPlusIcon className="h-3.5 w-3.5" />
+          <span>New Folder</span>
         </button>
+
         <button
           type="button"
           onClick={onOpenCreateFile}
-          className="rounded border border-neutral-700 bg-neutral-800 px-2.5 py-1 font-medium text-neutral-200 hover:border-neutral-500"
+          className="flex items-center gap-1.5 rounded-lg border border-border bg-elevated px-2.5 py-1.5 font-medium text-foreground transition-colors hover:border-sky-500"
         >
-          + New File
+          <FilePlusIcon className="h-3.5 w-3.5 text-sky-500" />
+          <span>New File</span>
         </button>
+
+        <div className="mx-0.5 hidden h-4 w-px bg-border sm:block" />
+
         <button
           type="button"
           onClick={onToggleMultiSelectMode}
-          className={`rounded border px-2.5 py-1 font-medium ${
+          className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-medium transition-colors ${
             isMultiSelectMode
-              ? "border-amber-500 bg-amber-500/20 text-amber-300"
-              : "border-neutral-700 bg-neutral-800 text-neutral-300"
+              ? "border-amber-500/60 bg-amber-500/15 text-amber-500"
+              : "border-border bg-elevated text-muted hover:text-foreground"
           }`}
         >
-          {isMultiSelectMode ? "Multi-Select: ON" : "Multi-Select"}
+          <CheckSquareIcon className="h-3.5 w-3.5" />
+          <span>{isMultiSelectMode ? "Multi-Select: ON" : "Multi-Select"}</span>
         </button>
+
         <button
           type="button"
           onClick={onSelectAll}
-          className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-neutral-300 hover:text-white"
+          className="rounded-lg border border-border bg-elevated px-2.5 py-1.5 font-medium text-muted transition-colors hover:text-foreground"
         >
           Select All
         </button>
       </div>
 
-      {/* Contextual selection and clipboard actions */}
-      <div className="flex flex-wrap items-center gap-1.5">
+      {/* Right group: Contextual clipboard Paste button & active Selection action pill */}
+      <div className="flex flex-wrap items-center gap-2">
         {clipboardState && (
           <button
             type="button"
             onClick={onPasteClipboard}
-            className="rounded bg-emerald-600 px-2.5 py-1 font-medium text-white hover:bg-emerald-500"
+            className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 font-semibold text-white shadow-sm transition-colors hover:bg-emerald-500"
           >
-            Paste ({clipboardState.items.length} {clipboardState.operation})
+            <ClipboardPasteIcon className="h-3.5 w-3.5" />
+            <span>
+              Paste Here ({clipboardState.items.length}{" "}
+              {clipboardState.operation === "move" ? "cut" : "copied"})
+            </span>
           </button>
         )}
 
         {hasSelection && (
-          <>
-            <span className="px-1 font-medium text-sky-400">
+          <div className="flex flex-wrap items-center gap-1 rounded-xl border border-sky-500/40 bg-sky-500/10 px-2 py-1">
+            <span className="px-1.5 font-semibold text-sky-500">
               {selectedCount} selected
             </span>
+
             {isSingleSelected && (
               <button
                 type="button"
                 onClick={onRenameSelected}
-                className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-neutral-200 hover:border-neutral-500"
+                className="flex items-center gap-1 rounded-lg bg-panel px-2 py-1 font-medium text-foreground shadow-sm transition-colors hover:text-sky-500"
               >
-                Rename
+                <EditPencilIcon />
+                <span>Rename</span>
               </button>
             )}
+
             <button
               type="button"
               onClick={onCopySelected}
-              className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-neutral-200 hover:border-neutral-500"
+              className="flex items-center gap-1 rounded-lg bg-panel px-2 py-1 font-medium text-foreground shadow-sm transition-colors hover:text-sky-500"
             >
-              Copy
+              <CopyIcon />
+              <span>Copy</span>
             </button>
+
             <button
               type="button"
               onClick={onMoveSelected}
-              className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-neutral-200 hover:border-neutral-500"
+              className="flex items-center gap-1 rounded-lg bg-panel px-2 py-1 font-medium text-foreground shadow-sm transition-colors hover:text-sky-500"
             >
-              Cut
+              <ScissorsCutIcon />
+              <span>Cut</span>
             </button>
+
             <button
               type="button"
               onClick={onDeleteSelected}
-              className="rounded border border-rose-700/70 bg-rose-950/60 px-2 py-1 font-medium text-rose-200 hover:bg-rose-900"
+              className="flex items-center gap-1 rounded-lg bg-rose-600 px-2 py-1 font-medium text-white shadow-sm transition-colors hover:bg-rose-500"
             >
-              Delete
+              <TrashDeleteIcon />
+              <span>Delete</span>
             </button>
+
             <button
               type="button"
               onClick={onClearSelection}
-              className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-neutral-400 hover:text-white"
+              className="rounded-lg px-2 py-1 font-medium text-muted transition-colors hover:text-foreground"
             >
               Clear
             </button>
-          </>
+          </div>
         )}
       </div>
     </div>

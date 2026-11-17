@@ -101,9 +101,9 @@ return (
           </div>
         )}
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-background">
           {controller.isLoading ? (
-            <div className="flex h-48 items-center justify-center text-xs text-neutral-400">
+            <div className="flex h-48 items-center justify-center text-xs font-medium text-muted">
               Loading directory contents...
             </div>
           ) : (
@@ -118,21 +118,18 @@ return (
           )}
         </main>
 
-        <footer className="flex items-center justify-between border-t border-neutral-800 bg-neutral-900/60 px-3 py-1.5 text-[11px] text-neutral-400">
+        <footer className="flex items-center justify-between border-t border-border bg-panel px-4 py-1.5 text-[11px] font-medium text-muted">
           <div className="flex items-center gap-3">
             <span>{controller.visibleEntries.length} items</span>
-            <span>
-              Root: {controller.currentPath.mountPrefix || controller.currentPath.rootId}
-            </span>
+            {controller.selectionState.selectedPaths.length > 0 && (
+              <span className="font-semibold text-sky-500">
+                • {controller.selectionState.selectedPaths.length} selected
+              </span>
+            )}
           </div>
-
-          <button
-            type="button"
-            onClick={() => setIsSettingsOpen(true)}
-            className="rounded border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:border-sky-500"
-          >
-            Settings ({theme.resolvedTheme === "dark" ? "Dark" : "Light"})
-          </button>
+          <span className="truncate">
+            Location: {controller.currentPath.mountPrefix || controller.currentPath.rootId}
+          </span>
         </footer>
       </div>
 
