@@ -134,6 +134,7 @@ yarn build
 
 > Newest entry on top. One line per change: date — what changed.
 
+- `2026-11-17` — Completed Step 5 UI polish: decluttered `ActionToolbar` with `ActionIcons`, updated `NamePromptModal` for Light/Dark themes, and streamlined `ExplorerShell` status bar.
 - `2026-11-17` — Upgraded `FileEntryCollection` with category-colored folder/file icons (`FileEntryIcons`), one-click selection checkboxes, and structured List view headers.
 - `2026-11-17` — Redesigned `ExplorerToolbar` with icon navigation cluster (`ToolbarIcons`), recessed breadcrumb address bar, search clear button, and segmented Grid/List view toggle.
 - `2026-11-17` — Upgraded `StorageNavigation` with SVG location icons (`ExplorerIcons`), mounted custom folder indicator, and integrated Settings trigger.
