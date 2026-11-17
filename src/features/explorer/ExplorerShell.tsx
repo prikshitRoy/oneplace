@@ -2,6 +2,8 @@
 
 "use client";
 
+import { useState } from "react";
+import { SettingsModal, useThemeSettings } from "@/features/settings";
 import { ActionToolbar } from "./ActionToolbar";
 import { ExplorerToolbar } from "./ExplorerToolbar";
 import { FileEntryCollection } from "./FileEntryCollection";
@@ -12,6 +14,8 @@ import { useExplorerController } from "./useExplorerController";
 /** Renders the complete cross-platform One Place file explorer workspace. */
 export function ExplorerShell() {
   const controller = useExplorerController();
+  const theme = useThemeSettings();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   function openRenameModal(): void {
     const selectedTarget = controller.selectionState.selectedPaths[0];
@@ -113,10 +117,20 @@ export function ExplorerShell() {
         </main>
 
         <footer className="flex items-center justify-between border-t border-neutral-800 bg-neutral-900/60 px-3 py-1.5 text-[11px] text-neutral-400">
-          <span>{controller.visibleEntries.length} items</span>
-          <span>
-            Root: {controller.currentPath.mountPrefix || controller.currentPath.rootId}
-          </span>
+          <div className="flex items-center gap-3">
+            <span>{controller.visibleEntries.length} items</span>
+            <span>
+              Root: {controller.currentPath.mountPrefix || controller.currentPath.rootId}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsSettingsOpen(true)}
+            className="rounded border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:border-sky-500"
+          >
+            Settings ({theme.resolvedTheme === "dark" ? "Dark" : "Light"})
+          </button>
         </footer>
       </div>
 
@@ -127,6 +141,14 @@ export function ExplorerShell() {
           onCancel={() => controller.setPromptModal(null)}
         />
       )}
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        themeMode={theme.themeMode}
+        resolvedTheme={theme.resolvedTheme}
+        onSelectThemeMode={theme.setThemeMode}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </div>
   );
 }
