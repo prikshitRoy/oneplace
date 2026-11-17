@@ -62,7 +62,7 @@ Status key: **Done** | **In progress** | **Planned**
 
 | Feature                                                        | Status  |
 | -------------------------------------------------------------- | ------- |
-| Cross-platform path normalization and `VirtualPath` resolver   | Planned |
+| Cross-platform path normalization and `VirtualPath` resolver   | Done    |
 | Directory listing with metadata (size, modified date, type)    | Planned |
 | File/folder create, rename, copy, move, and delete operations  | Planned |
 | Native file opener integration (`@tauri-apps/plugin-opener`)   | Planned |
@@ -71,10 +71,10 @@ Status key: **Done** | **In progress** | **Planned**
 
 | Feature                                                        | Status  |
 | -------------------------------------------------------------- | ------- |
-| Back, forward, and parent directory history stack              | Planned |
-| Breadcrumb path parser and quick-jump segments                 | Planned |
-| Single and multi-item selection (keyboard + touch long-press)  | Planned |
-| Search and sort (by name, size, date, type)                    | Planned |
+| Back, forward, and parent directory history stack              | Done    |
+| Breadcrumb path parser and quick-jump segments                 | Done    |
+| Single and multi-item selection (keyboard + touch long-press)  | Done    |
+| Search and sort (by name, size, date, type)                    | Done    |
 
 ### 4.4 Adaptive UI (`src/features/explorer/`)
 
@@ -97,10 +97,10 @@ tauri-2.0-nextjs-14.2.23-template/
 ├── public/                     # Static assets
 ├── src/
 │   ├── app/                    # Next.js App Router root layout and entry page
-│   └── features/               # Planned: modular feature directories
-│       ├── file-system/        # Planned: Tauri FS/Dialog IPC wrapper & VirtualPath logic
-│       ├── navigation/         # Planned: pure history stack, sorting, and breadcrumb logic
-│       ├── selection/          # Planned: pure item selection and clipboard state
+│   └── features/               # Modular feature directories
+│       ├── file-system/        # VirtualPath contracts, path resolver, & unit tests (IPC adapter planned)
+│       ├── navigation/         # Pure history stack, sorting, filtering, & unit tests
+│       ├── selection/          # Pure item selection, clipboard state, & unit tests
 │       └── explorer/           # Planned: responsive UI components (grid, list, bars)
 └── src-tauri/
     ├── capabilities/           # Tauri v2 permission scopes (desktop & mobile)
@@ -132,6 +132,7 @@ yarn build
 
 > Newest entry on top. One line per change: date — what changed.
 
+- `2026-11-17` — Added pure `file-system` path resolver, `navigation` history/sort/filter, and `selection` modules with Vitest unit tests.
 - `2026-11-17` — Renamed app to "One Place" (`one-place`), updated `.gitignore`, configured Tauri `fs`/`dialog`/`os` plugins and capabilities, and added Vitest.
 - `2026-11-17` — Initialized `PROJECT_OVERVIEW.md` with cross-platform file manager architecture and feature roadmap.
 
