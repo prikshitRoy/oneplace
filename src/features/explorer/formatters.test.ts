@@ -8,6 +8,7 @@ import {
   formatFileSize,
   formatModifiedDate,
   getEntryTypeBadge,
+  getEntryVisualCategory,
 } from "./formatters";
 
 describe("formatFileSize", () => {
@@ -83,5 +84,29 @@ describe("formatCustomMountLabel", () => {
     expect(driveRootLabel).toBe("C:");
     expect(unixRootLabel).toBe("/");
     expect(fallbackLabel).toBe("Custom Folder");
+  });
+});
+
+
+describe("getEntryVisualCategory", () => {
+  it("classifies directories, media, code, archives, and unknown extensions accurately", () => {
+    // Arrange
+    const baseEntry: FileEntry = {
+      name: "item",
+      extension: "",
+      path: createVirtualPath("documents", "item"),
+      kind: "file",
+      sizeBytes: 100,
+      modifiedAtMs: null,
+      isHidden: false,
+    };
+
+    // Act & Assert
+    expect(getEntryVisualCategory({ ...baseEntry, kind: "directory" })).toBe("folder");
+    expect(getEntryVisualCategory({ ...baseEntry, extension: "png" })).toBe("image");
+    expect(getEntryVisualCategory({ ...baseEntry, extension: "rs" })).toBe("code");
+    expect(getEntryVisualCategory({ ...baseEntry, extension: "pdf" })).toBe("document");
+    expect(getEntryVisualCategory({ ...baseEntry, extension: "zip" })).toBe("archive");
+    expect(getEntryVisualCategory({ ...baseEntry, extension: "unknown" })).toBe("generic");
   });
 });

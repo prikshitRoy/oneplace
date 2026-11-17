@@ -15,3 +15,16 @@ export interface ActivePromptModal {
   readonly initialValue: string;
   readonly targetPath?: VirtualPath;
 }
+
+
+/** Visual category used to assign distinct icons and accent colors to file entries. */
+export type EntryVisualCategory =
+  | "folder"
+  | "symlink"
+  | "image"
+  | "video"
+  | "audio"
+  | "archive"
+  | "code"
+  | "document"
+  | "generic";

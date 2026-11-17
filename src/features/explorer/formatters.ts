@@ -1,6 +1,7 @@
 // Pure formatting functions for file sizes, modification timestamps, and type badges.
 
 import type { FileEntry } from "@/features/file-system";
+import type { EntryVisualCategory } from "./types";
 
 /** Binary kilobyte divisor used to scale byte counts into human-readable units. */
 const BYTES_PER_KILOBYTE = 1024;
@@ -73,4 +74,33 @@ export function formatCustomMountLabel(mountPrefix: string | undefined): string 
 
   const segments = normalized.split("/").filter(Boolean);
   return segments[segments.length - 1] ?? normalized;
+}
+
+
+
+const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp", "ico", "avif"]);
+const VIDEO_EXTENSIONS = new Set(["mp4", "mkv", "webm", "mov", "avi", "m4v"]);
+const AUDIO_EXTENSIONS = new Set(["mp3", "wav", "flac", "ogg", "m4a", "aac"]);
+const ARCHIVE_EXTENSIONS = new Set(["zip", "tar", "gz", "7z", "rar", "bz2", "xz"]);
+const CODE_EXTENSIONS = new Set(["ts", "tsx", "js", "jsx", "rs", "py", "json", "toml", "yaml", "yml", "html", "css", "sh", "sql"]);
+const DOCUMENT_EXTENSIONS = new Set(["pdf", "md", "txt", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "csv"]);
+
+/** Classifies a FileEntry into a visual category for icon and color rendering. */
+export function getEntryVisualCategory(entry: FileEntry): EntryVisualCategory {
+  if (entry.kind === "directory") {
+    return "folder";
+  }
+  if (entry.kind === "symlink") {
+    return "symlink";
+  }
+
+  const ext = entry.extension.toLowerCase();
+  if (IMAGE_EXTENSIONS.has(ext)) return "image";
+  if (VIDEO_EXTENSIONS.has(ext)) return "video";
+  if (AUDIO_EXTENSIONS.has(ext)) return "audio";
+  if (ARCHIVE_EXTENSIONS.has(ext)) return "archive";
+  if (CODE_EXTENSIONS.has(ext)) return "code";
+  if (DOCUMENT_EXTENSIONS.has(ext)) return "document";
+
+  return "generic";
 }

@@ -2,6 +2,7 @@
 
 export type {
   ActivePromptModal,
+  EntryVisualCategory,
   ExplorerViewMode,
   PromptModalKind,
 } from "./types";
@@ -12,6 +13,7 @@ export {
   formatFileSize,
   formatModifiedDate,
   getEntryTypeBadge,
+  getEntryVisualCategory,
 } from "./formatters";
 
 export { ExplorerShell } from "./ExplorerShell";
