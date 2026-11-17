@@ -83,6 +83,7 @@ Status key: **Done** | **In progress** | **Planned**
 | Responsive shell (sidebar on desktop, bottom bar on mobile)    | Done    |
 | Grid and list view modes for directory contents                | Done    |
 | Contextual action toolbar and modal prompt for file operations | Done    |
+| User Settings modal with Light, Dark, and System theme modes   | Done    |
 
 ## 5. Known Issues and Open Items
 
@@ -101,7 +102,8 @@ tauri-2.0-nextjs-14.2.23-template/
 │       ├── file-system/        # VirtualPath contracts, path resolver, Tauri FS/Dialog/Opener  adapters, & tests
 │       ├── navigation/         # Pure history stack, sorting, filtering, & unit tests
 │       ├── selection/          # Pure item selection, clipboard state, & unit tests
-│       └── explorer/           # Responsive ExplorerShell, toolbars, grid/list views, & formatters
+│       ├── explorer/           # Responsive ExplorerShell, toolbars, grid/list views, & formatters
+│       └── settings/           # Light/Dark/System theme logic, storage hook, SettingsModal, & tests
 └── src-tauri/
     ├── capabilities/           # Tauri v2 permission scopes (desktop & mobile)
     ├── icons/                  # App icons for all target platforms
@@ -132,6 +134,7 @@ yarn build
 
 > Newest entry on top. One line per change: date — what changed.
 
+- `2026-11-17` — Fixed Tailwind `src/features` content scanning and added `settings` module with Light, Dark, and System theme switching.
 - `2026-11-17` — Built Phase 4 adaptive `explorer` UI (`ExplorerShell`, toolbars, grid/list views, modal prompt, pure formatters + unit tests) and wired into `src/app/page.tsx`.
 - `2026-11-17` — Implemented Phase 3 Tauri file system adapter (`directory-reader`, `file-operations`, `tauri-target`, `validation`) with unit tests and capability permissions.
 - `2026-11-17` — Added pure `file-system` path resolver, `navigation` history/sort/filter, and `selection` modules with Vitest unit tests.
