@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-20-nextjs-14223-template",
+"productName": "One Place",
   "version": "0.1.0",
-  "identifier": "com.tauri-20-nextjs-14223-template.app",
+  "identifier": "com.oneplace.app",
   "build": {
     "beforeDevCommand": "yarn next-start",
     "beforeBuildCommand": "yarn next-build",
@@ -12,8 +12,8 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-20-nextjs-14223-template",
-        "width": 800,
+        "title": "One Place",
+        "width": 1024,
         "height": 600
       }
     ],

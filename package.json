@@ -1,5 +1,5 @@
 {
-  "name": "tauri-2.0-nextjs-14.2.23-template",
+  "name": "one-place",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,11 +7,16 @@
     "next-build": "next build",
     "tauri": "tauri",
     "build": "tauri build",
-    "dev": "tauri dev"
+    "dev": "tauri dev",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",
+    "@tauri-apps/plugin-dialog": "~2",
+    "@tauri-apps/plugin-fs": "~2",
     "@tauri-apps/plugin-opener": "~2",
+    "@tauri-apps/plugin-os": "~2",
     "next": "14.2.23",
     "react": "^18",
     "react-dom": "^18"
@@ -23,6 +28,7 @@
     "@types/react-dom": "^18",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.8"
   }
 }
