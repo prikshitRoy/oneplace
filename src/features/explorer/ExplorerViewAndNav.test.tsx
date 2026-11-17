@@ -1,0 +1,213 @@
+// Layer 2 UI integration tests for OS root filtering, custom folder mounting, breadcrumbs, and view/sort controls.
+
+import { BaseDirectory } from "@tauri-apps/api/path";
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  fakeCopyFile,
+  fakeGetOsType,
+  fakeMkdir,
+  fakeOpenDialog,
+  fakeOpenPath,
+  fakeReadDir,
+  fakeRemove,
+  fakeRename,
+  fakeStat,
+  fakeWriteTextFile,
+  resetFakeFileSystem,
+  setFakePickedFolder,
+  type FakeFsNode,
+} from "@/test-support/fake-tauri-fs";
+import { ExplorerShell } from "./ExplorerShell";
+
+vi.mock("@tauri-apps/plugin-fs", () => ({
+  readDir: (...args: Parameters<typeof fakeReadDir>) => fakeReadDir(...args),
+  stat: (...args: Parameters<typeof fakeStat>) => fakeStat(...args),
+  mkdir: (...args: Parameters<typeof fakeMkdir>) => fakeMkdir(...args),
+  writeTextFile: (...args: Parameters<typeof fakeWriteTextFile>) =>
+    fakeWriteTextFile(...args),
+  rename: (...args: Parameters<typeof fakeRename>) => fakeRename(...args),
+  remove: (...args: Parameters<typeof fakeRemove>) => fakeRemove(...args),
+  copyFile: (...args: Parameters<typeof fakeCopyFile>) => fakeCopyFile(...args),
+}));
+
+vi.mock("@tauri-apps/plugin-os", () => ({
+  type: () => fakeGetOsType(),
+}));
+
+vi.mock("@tauri-apps/plugin-dialog", () => ({
+  open: () => fakeOpenDialog(),
+}));
+
+vi.mock("@tauri-apps/plugin-opener", () => ({
+  openPath: (path: string) => fakeOpenPath(path),
+}));
+
+const SEED_NODES: readonly FakeFsNode[] = [
+  {
+    baseDir: BaseDirectory.Document,
+    parentPath: "",
+    name: "Projects",
+    isDirectory: true,
+    sizeBytes: 0,
+    mtimeMs: Date.UTC(2026, 10, 17, 10, 0, 0),
+  },
+  {
+    baseDir: BaseDirectory.Document,
+    parentPath: "",
+    name: "alpha.txt",
+    isDirectory: false,
+    sizeBytes: 100,
+    mtimeMs: Date.UTC(2026, 10, 17, 11, 0, 0),
+  },
+  {
+    baseDir: BaseDirectory.Document,
+    parentPath: "",
+    name: "zeta.bin",
+    isDirectory: false,
+    sizeBytes: 5120,
+    mtimeMs: Date.UTC(2026, 10, 17, 12, 0, 0),
+  },
+  {
+    baseDir: BaseDirectory.Document,
+    parentPath: "",
+    name: ".env.local",
+    isDirectory: false,
+    sizeBytes: 64,
+    mtimeMs: Date.UTC(2026, 10, 17, 8, 0, 0),
+  },
+  {
+    baseDir: BaseDirectory.Document,
+    parentPath: "Projects",
+    name: "Specs",
+    isDirectory: true,
+    sizeBytes: 0,
+    mtimeMs: Date.UTC(2026, 10, 17, 10, 30, 0),
+  },
+  {
+    baseDir: BaseDirectory.Document,
+    parentPath: "Projects/Specs",
+    name: "design.pdf",
+    isDirectory: false,
+    sizeBytes: 2048,
+    mtimeMs: Date.UTC(2026, 10, 17, 10, 45, 0),
+  },
+  {
+    baseDir: undefined,
+    parentPath: "E:/Workspace",
+    name: "external-repo.rs",
+    isDirectory: false,
+    sizeBytes: 1024,
+    mtimeMs: Date.UTC(2026, 10, 17, 15, 0, 0),
+  },
+];
+
+describe("ExplorerShell UI integration — Platform Roots, Navigation & Views", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    resetFakeFileSystem(SEED_NODES, "windows");
+  });
+
+  it("shows Home location on Windows and hides Home on Android", async () => {
+    // Arrange & Act: render on Windows first
+    const { unmount } = render(<ExplorerShell />);
+    await screen.findByText("Projects");
+    const desktopSidebar = screen.getByRole("complementary", {
+      name: "Storage locations",
+    });
+
+    // Assert: Home is available on desktop OS
+    expect(
+      within(desktopSidebar).getByRole("button", { name: "Home" })
+    ).toBeInTheDocument();
+    unmount();
+
+    // Arrange & Act: reset fake OS to Android and re-render
+    resetFakeFileSystem(SEED_NODES, "android");
+    render(<ExplorerShell />);
+    await screen.findByText("Projects");
+    const androidSidebar = screen.getByRole("complementary", {
+      name: "Storage locations",
+    });
+
+    // Assert: Home is excluded on mobile sandboxed OS
+    expect(
+      within(androidSidebar).queryByRole("button", { name: "Home" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("mounts a custom folder via Open Folder and displays its sidebar badge and files", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    setFakePickedFolder("E:\\Workspace");
+    render(<ExplorerShell />);
+    await screen.findByText("Projects");
+
+    // Act
+    await user.click(screen.getByRole("button", { name: /Open Folder/i }));
+
+    // Assert
+    expect(await screen.findByText("external-repo.rs")).toBeInTheDocument();
+    expect(screen.getByText("Mounted Folder")).toBeInTheDocument();
+    expect(screen.getByText("Location: E:/Workspace")).toBeInTheDocument();
+  });
+
+  it("navigates via Up, Forward, Breadcrumb segments, and Refresh buttons", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<ExplorerShell />);
+    await screen.findByText("Projects");
+
+    // Act: navigate into Projects -> Specs
+    await user.click(screen.getAllByRole("button", { name: "Open" })[0]);
+    await screen.findByText("Specs");
+    await user.click(screen.getByRole("button", { name: "Open" }));
+    expect(await screen.findByText("design.pdf")).toBeInTheDocument();
+
+    // Act: click Up to go to parent (Projects), then Back and Forward
+    await user.click(
+      screen.getByRole("button", { name: "Navigate to parent folder" })
+    );
+    expect(await screen.findByText("Specs")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Navigate back" }));
+    expect(await screen.findByText("design.pdf")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Navigate forward" }));
+    expect(await screen.findByText("Specs")).toBeInTheDocument();
+
+    // Act: click Documents in the Breadcrumb bar and then Refresh
+    const breadcrumbNav = screen.getByRole("navigation", { name: "Breadcrumb" });
+    await user.click(
+      within(breadcrumbNav).getByRole("button", { name: "Documents" })
+    );
+    expect(await screen.findByText("alpha.txt")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Refresh directory" }));
+    expect(await screen.findByText("alpha.txt")).toBeInTheDocument();
+  });
+
+  it("switches to List view, toggles Hidden dotfiles, and re-sorts entries by Size", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<ExplorerShell />);
+    await screen.findByText("alpha.txt");
+
+    // Act: switch to List view and toggle Hidden files ON
+    await user.click(screen.getByRole("button", { name: "List" }));
+    await user.click(screen.getByRole("button", { name: /Hidden/i }));
+
+    // Assert: List column header inside <main> and hidden .env.local file appear
+    expect(within(screen.getByRole("main")).getByText("Modified")).toBeInTheDocument();
+    expect(await screen.findByText(".env.local")).toBeInTheDocument();
+
+    // Act: sort by Size and toggle direction to DESC
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Sort by field" }),
+      "size"
+    );
+    await user.click(screen.getByRole("button", { name: /ASC/i }));
+
+    // Assert: button updates to DESC and entries remain rendered
+    expect(screen.getByRole("button", { name: /DESC/i })).toBeInTheDocument();
+    expect(screen.getByText("zeta.bin")).toBeInTheDocument();
+  });
+});

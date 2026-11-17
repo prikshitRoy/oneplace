@@ -58,6 +58,11 @@ export function resetFakeFileSystem(
   state.nodes = seedNodes.map((node) => ({ ...node }));
 }
 
+/** Configures the folder path returned by the next fakeOpenDialog() call. */
+export function setFakePickedFolder(folderPath: string | null): void {
+  state.pickedFolder = folderPath;
+}
+
 /** Returns the list of native paths opened via the fake system opener plugin. */
 export function getOpenedSystemPaths(): readonly string[] {
   return state.openedPaths;
