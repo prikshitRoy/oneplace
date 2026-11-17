@@ -8,6 +8,7 @@ export type {
 
 export {
   EMPTY_METADATA_PLACEHOLDER,
+  formatCustomMountLabel,
   formatFileSize,
   formatModifiedDate,
   getEntryTypeBadge,

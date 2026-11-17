@@ -32,13 +32,15 @@ export function ExplorerShell() {
     });
   }
 
-  return (
-    <div className="flex h-screen w-screen overflow-hidden bg-neutral-950 text-neutral-100">
+return (
+    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
       <StorageNavigation
         roots={controller.roots}
         currentPath={controller.currentPath}
+        resolvedTheme={theme.resolvedTheme}
         onSelectRoot={controller.handleNavigate}
         onPickCustomFolder={controller.handlePickCustomFolder}
+        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden pb-12 md:pb-0">

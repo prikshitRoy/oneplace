@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { createVirtualPath, type FileEntry } from "@/features/file-system";
 import {
   EMPTY_METADATA_PLACEHOLDER,
+  formatCustomMountLabel,
   formatFileSize,
   formatModifiedDate,
   getEntryTypeBadge,
@@ -65,5 +66,22 @@ describe("getEntryTypeBadge", () => {
     // Act & Assert
     expect(getEntryTypeBadge(folderEntry)).toBe("DIR");
     expect(getEntryTypeBadge(fileEntry)).toBe("GZ");
+  });
+});
+
+
+describe("formatCustomMountLabel", () => {
+  it("extracts the final folder name or drive root from Windows and Unix paths", () => {
+    // Arrange & Act
+    const nestedLabel = formatCustomMountLabel("E:\\Software Projects\\one_place\\");
+    const driveRootLabel = formatCustomMountLabel("C:/");
+    const unixRootLabel = formatCustomMountLabel("/");
+    const fallbackLabel = formatCustomMountLabel(undefined);
+
+    // Assert
+    expect(nestedLabel).toBe("one_place");
+    expect(driveRootLabel).toBe("C:");
+    expect(unixRootLabel).toBe("/");
+    expect(fallbackLabel).toBe("Custom Folder");
   });
 });

@@ -58,3 +58,19 @@ export function getEntryTypeBadge(entry: FileEntry): string {
   }
   return entry.extension.slice(0, 4).toUpperCase();
 }
+
+
+/** Extracts a concise folder or drive display name from a custom mount prefix. */
+export function formatCustomMountLabel(mountPrefix: string | undefined): string {
+  if (!mountPrefix) {
+    return "Custom Folder";
+  }
+
+  const normalized = mountPrefix.replace(/\\/g, "/").replace(/\/+$/, "");
+  if (!normalized) {
+    return "/";
+  }
+
+  const segments = normalized.split("/").filter(Boolean);
+  return segments[segments.length - 1] ?? normalized;
+}
