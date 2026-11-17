@@ -34,7 +34,7 @@ Designed for users who want a fast, consistent file browsing and management expe
 | Styling           | Tailwind CSS 3.4.1, PostCSS 8                            |
 | Backend / Runtime | Tauri 2.12 (`plugin-fs`, `plugin-dialog`, `plugin-os`, `plugin-opener`) |
 | Package managers  | Yarn (`yarn.lock`), Cargo (`src-tauri/Cargo.lock`)       |
-| Tests             | Vitest ^2.1.8, React Testing Library ^16.1.0 (`jsdom`), `cargo test` |
+| Tests             | Vitest ^2.1.8, React Testing Library ^16.1.0, Playwright ^1.49.0, `cargo test` |
 | Target platforms  | Windows, Linux, macOS, Android, iOS                      |
 
 Planned: Android/iOS mobile scaffolding (`yarn tauri android init` / `yarn tauri ios init`).
@@ -55,7 +55,7 @@ Status key: **Done** | **In progress** | **Planned**
 | Feature                                                        | Status  |
 | -------------------------------------------------------------- | ------- |
 | Desktop Tauri v2 + Next.js 14 SSG template setup               | Done    |
-| Mobile target initialization (`gen/android`, `gen/apple`)      | Planned |
+| Mobile target initialization (`gen/android`) & storage scopes  | Done    |
 | Tauri FS, Dialog, and OS plugin integration & capabilities     | Done    |
 
 ### 4.2 File System Service (`src/features/file-system/`)
@@ -120,11 +120,19 @@ yarn
 # Run desktop development mode
 yarn dev
 
-# Run Android development mode (once initialized)
-yarn tauri android dev
+# Run Android development mode (tunnel port 3000 via ADB, grant All Files Access, and launch)
+yarn android:reverse
+yarn android:grant-storage
+yarn android:dev
 
-# Run frontend and backend tests
+# Run frontend Unit (Layer 1), UI Integration (Layer 2), and Playwright E2E (Layer 3) tests
 yarn test
+yarn test:unit
+yarn test:integration
+yarn playwright install chromium
+yarn test:e2e
+
+# Run Rust backend tests
 cd src-tauri && cargo test
 
 # Build production application
@@ -135,6 +143,8 @@ yarn build
 
 > Newest entry on top. One line per change: date — what changed.
 
+- `2026-11-18` — Configured Android storage permissions (`AndroidManifest.xml`), mapped Android shared storage roots (`/storage/emulated/0/...`), added SAF folder picker URI normalization, and documented Android/E2E commands.
+- `2026-11-18` — Added Layer 3 Playwright E2E test suite (`playwright.config.ts`, `e2e/tauri-ipc-bridge.ts`, `e2e/explorer.spec.ts`) for Desktop and Mobile viewports.
 - `2026-11-17` — Added `ExplorerViewAndNav.test.tsx` and `ExplorerSelectionAndFileOps.test.tsx` to achieve 100% Layer 2 UI integration test coverage across all checklist flows.
 - `2026-11-17` — Completed Layer 2 UI integration test suite (`ExplorerOperations.test.tsx`) covering folder/file creation, validation alerts, rename, copy/paste, multi-delete, and Light/Dark theme switching.
 - `2026-11-17` — Added `APP_TEST_CHECKLIST.md`, configured Layer 2 UI integration testing (`@testing-library/react`, `jsdom`, `fake-tauri-fs.ts`), and added `ExplorerShell.test.tsx` (Part 1).

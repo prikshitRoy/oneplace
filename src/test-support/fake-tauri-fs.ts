@@ -68,16 +68,44 @@ export function getOpenedSystemPaths(): readonly string[] {
   return state.openedPaths;
 }
 
+
+const ANDROID_PREFIX_TO_BASE_DIR: Readonly<Record<string, BaseDirectory>> = {
+  "storage/emulated/0/Documents": BaseDirectory.Document,
+  "storage/emulated/0/Download": BaseDirectory.Download,
+  "storage/emulated/0/Pictures": BaseDirectory.Picture,
+  "storage/emulated/0/Movies": BaseDirectory.Video,
+  "storage/emulated/0/Music": BaseDirectory.Audio,
+};
+
+function resolveEffectiveQuery(
+  targetPath: string,
+  baseDir?: BaseDirectory
+): { parentPath: string; baseDir?: BaseDirectory } {
+  const normalized = normalizeTarget(targetPath);
+  if (baseDir !== undefined) {
+    return { parentPath: normalized, baseDir };
+  }
+  for (const [prefix, mappedBase] of Object.entries(ANDROID_PREFIX_TO_BASE_DIR)) {
+    if (normalized === prefix) {
+      return { parentPath: "", baseDir: mappedBase };
+    }
+    if (normalized.startsWith(`${prefix}/`)) {
+      return { parentPath: normalized.slice(prefix.length + 1), baseDir: mappedBase };
+    }
+  }
+  return { parentPath: normalized, baseDir: undefined };
+}
+
 /** Fake implementation of @tauri-apps/plugin-fs readDir. */
 export async function fakeReadDir(
   targetPath: string,
   options?: { baseDir?: BaseDirectory }
 ) {
-  const parentPath = normalizeTarget(targetPath);
+  const query = resolveEffectiveQuery(targetPath, options?.baseDir);
   return state.nodes
     .filter(
       (node) =>
-        node.baseDir === options?.baseDir && node.parentPath === parentPath
+        node.baseDir === query.baseDir && node.parentPath === query.parentPath
     )
     .map((node) => ({
       name: node.name,
@@ -111,14 +139,25 @@ export async function fakeMkdir(
   options?: { baseDir?: BaseDirectory }
 ): Promise<void> {
   const { parentPath, name } = splitParentAndName(targetPath);
-  state.nodes.push({
-    baseDir: options?.baseDir,
-    parentPath,
-    name,
-    isDirectory: true,
-    sizeBytes: 0,
-    mtimeMs: DEFAULT_MTIME_MS,
-  });
+  if (!name) {
+    return;
+  }
+  const alreadyExists = state.nodes.some(
+    (node) =>
+      node.baseDir === options?.baseDir &&
+      node.parentPath === parentPath &&
+      node.name === name
+  );
+  if (!alreadyExists) {
+    state.nodes.push({
+      baseDir: options?.baseDir,
+      parentPath,
+      name,
+      isDirectory: true,
+      sizeBytes: 0,
+      mtimeMs: DEFAULT_MTIME_MS,
+    });
+  }
 }
 
 /** Fake implementation of @tauri-apps/plugin-fs writeTextFile. */

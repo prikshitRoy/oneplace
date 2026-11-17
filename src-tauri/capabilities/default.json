@@ -22,13 +22,22 @@
     {
       "identifier": "fs:scope",
       "allow": [
+        { "path": "$DOCUMENT" },
         { "path": "$DOCUMENT/**" },
+        { "path": "$DOWNLOAD" },
         { "path": "$DOWNLOAD/**" },
+        { "path": "$PICTURE" },
         { "path": "$PICTURE/**" },
+        { "path": "$VIDEO" },
         { "path": "$VIDEO/**" },
+        { "path": "$AUDIO" },
         { "path": "$AUDIO/**" },
+        { "path": "$APPLOCALDATA" },
         { "path": "$APPLOCALDATA/**" },
-        { "path": "$HOME/**" }
+        { "path": "$HOME" },
+        { "path": "$HOME/**" },
+        { "path": "/storage/emulated/0" },
+        { "path": "/storage/emulated/0/**" }
       ]
     }
   ]

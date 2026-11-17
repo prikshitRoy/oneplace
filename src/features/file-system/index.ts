@@ -23,6 +23,7 @@ export {
   isHiddenEntryName,
   isSameVirtualPath,
   joinVirtualPath,
+  normalizePickedDirectoryPath,
   normalizeRelativePath,
 } from "./path-resolver";
 

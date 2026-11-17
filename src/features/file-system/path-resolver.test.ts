@@ -8,6 +8,7 @@ import {
   getParentVirtualPath,
   isHiddenEntryName,
   joinVirtualPath,
+  normalizePickedDirectoryPath,
   normalizeRelativePath,
 } from "./path-resolver";
 
@@ -123,5 +124,28 @@ describe("extractFileExtension and isHiddenEntryName", () => {
     // Assert
     expect(hiddenResult).toBe(true);
     expect(visibleResult).toBe(false);
+  });
+});
+
+
+describe("normalizePickedDirectoryPath", () => {
+  it("converts Android SAF primary tree URIs and Windows paths into POSIX mount paths", () => {
+    // Arrange
+    const androidSafUri =
+      "content://com.android.externalstorage.documents/tree/primary%3ADownload%2FInvoices";
+    const androidRootSafUri =
+      "content://com.android.externalstorage.documents/tree/primary%3A";
+    const windowsDrivePath = "E:\\Projects\\one_place\\";
+
+    // Act & Assert
+    expect(normalizePickedDirectoryPath(androidSafUri)).toBe(
+      "/storage/emulated/0/Download/Invoices"
+    );
+    expect(normalizePickedDirectoryPath(androidRootSafUri)).toBe(
+      "/storage/emulated/0"
+    );
+    expect(normalizePickedDirectoryPath(windowsDrivePath)).toBe(
+      "E:/Projects/one_place"
+    );
   });
 });

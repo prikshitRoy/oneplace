@@ -1,6 +1,6 @@
 // Side-effect adapter for listing directory entries and detecting platform storage roots.
 
-import { readDir, stat, type DirEntry } from "@tauri-apps/plugin-fs";
+import { mkdir, readDir, stat, type DirEntry } from "@tauri-apps/plugin-fs";
 import { type as getOsType } from "@tauri-apps/plugin-os";
 import { DEFAULT_STORAGE_ROOTS } from "./constants";
 import {
@@ -47,9 +47,23 @@ export async function listDirectoryEntries(
   const target = resolveTauriFsTarget(directoryPath);
 
   try {
-    const rawEntries = await readDir(target.targetPath, {
-      baseDir: target.baseDir,
-    });
+    let rawEntries: DirEntry[];
+    try {
+      rawEntries = await readDir(target.targetPath, {
+        baseDir: target.baseDir,
+      });
+    } catch (readError) {
+      // Auto-create AppLocalData root on first launch if the OS has not created it yet
+      if (directoryPath.rootId === "appData" && !directoryPath.relativePath) {
+        await mkdir(target.targetPath, {
+          baseDir: target.baseDir,
+          recursive: true,
+        });
+        rawEntries = [];
+      } else {
+        throw readError;
+      }
+    }
 
     const entries = await Promise.all(
       rawEntries.map(async (rawEntry): Promise<FileEntry> => {
@@ -74,7 +88,7 @@ export async function listDirectoryEntries(
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `Failed to read directory "${directoryPath.rootId}:${directoryPath.relativePath}": ${detail}`
+      `Failed to read "${target.targetPath}". On Android, run "yarn android:grant-storage" or enable All Files Access in Settings. (${detail})`
     );
   }
 }

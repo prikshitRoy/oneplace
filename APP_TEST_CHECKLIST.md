@@ -57,8 +57,19 @@ yarn test:unit
 # Run only Layer 2 UI integration tests (*.test.tsx)
 yarn test:integration
 
+# Install Playwright Chromium browser (run once before first E2E test)
+yarn playwright install chromium
+
+# Run Layer 3 Playwright E2E tests (Desktop & Mobile viewports)
+yarn test:e2e
+
 # Run Rust backend tests
 cd src-tauri && cargo test
+
+# Android Dev Setup & Run (over USB or Wireless ADB)
+yarn android:reverse
+yarn android:grant-storage
+yarn android:dev
 ~~~
 
 ---

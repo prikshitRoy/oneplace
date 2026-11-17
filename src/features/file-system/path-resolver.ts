@@ -131,3 +131,29 @@ export function extractFileExtension(entryName: string, isDirectory: boolean): s
 export function isHiddenEntryName(entryName: string): boolean {
   return entryName.trim().startsWith(HIDDEN_FILE_PREFIX);
 }
+
+
+/** Converts desktop paths and Android SAF tree URIs into normalized POSIX mount paths. */
+export function normalizePickedDirectoryPath(rawSelectedPath: string): string {
+  const trimmed = rawSelectedPath.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  // Decode Android Storage Access Framework (SAF) tree URIs
+  if (trimmed.startsWith("content://")) {
+    const decoded = decodeURIComponent(trimmed);
+    const rawMatch = decoded.match(/\/tree\/raw:(.+)$/);
+    if (rawMatch?.[1]) {
+      return rawMatch[1].replace(/\\/g, VIRTUAL_PATH_SEPARATOR).replace(/\/+$/, "");
+    }
+
+    const primaryMatch = decoded.match(/\/tree\/primary:(.*)$/);
+    if (primaryMatch) {
+      const subPath = normalizeRelativePath(primaryMatch[1] ?? "");
+      return subPath ? `/storage/emulated/0/${subPath}` : "/storage/emulated/0";
+    }
+  }
+
+  return trimmed.replace(/\\/g, VIRTUAL_PATH_SEPARATOR).replace(/\/+$/, "");
+}

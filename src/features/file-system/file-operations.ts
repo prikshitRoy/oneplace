@@ -14,6 +14,7 @@ import {
   createVirtualPath,
   getParentVirtualPath,
   joinVirtualPath,
+  normalizePickedDirectoryPath,
 } from "./path-resolver";
 import { resolveNativeSystemPath, resolveTauriFsTarget } from "./tauri-target";
 import type { VirtualPath } from "./types";
@@ -179,7 +180,7 @@ export async function pickCustomFolder(): Promise<VirtualPath | null> {
       return null;
     }
 
-    const normalizedMount = selected.replace(/\\/g, VIRTUAL_PATH_SEPARATOR);
+    const normalizedMount = normalizePickedDirectoryPath(selected);
     return createVirtualPath("customDrive", "", normalizedMount);
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);

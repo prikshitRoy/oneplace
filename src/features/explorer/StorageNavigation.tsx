@@ -156,9 +156,9 @@ export function StorageNavigation({
       {/* Mobile fixed bottom navigation bar */}
       <nav
         aria-label="Mobile storage locations"
-        className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-around border-t border-border bg-panel/95 px-1.5 py-1.5 backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-1 overflow-x-auto border-t border-border bg-panel/95 px-2 py-1.5 backdrop-blur md:hidden"
       >
-        {roots.slice(0, 4).map((root) => {
+        {roots.map((root) => {
           const isActiveRoot =
             currentPath.rootId === root.id && !isCustomMountActive;
           return (
@@ -166,7 +166,7 @@ export function StorageNavigation({
               key={root.id}
               type="button"
               onClick={() => onSelectRoot(root.rootPath)}
-              className={`flex flex-col items-center gap-0.5 rounded-lg px-2.5 py-1 text-[10px] font-medium transition-colors ${
+              className={`flex shrink-0 flex-col items-center gap-0.5 rounded-lg px-2.5 py-1 text-[10px] font-medium transition-colors ${
                 isActiveRoot
                   ? "bg-sky-600 text-white"
                   : "text-muted hover:text-foreground"
