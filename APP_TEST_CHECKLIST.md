@@ -84,6 +84,8 @@ Status key: **Done** | **In progress** | **Planned**
 | --------- | ------------------ | ------ |
 | `src/features/explorer/ExplorerShell.test.tsx` | Initial `Documents` directory rendering, subfolder navigation (`Open` + `Back`), sidebar root switching (`Downloads`), live search filtering and reset | Done |
 | `src/features/explorer/ExplorerOperations.test.tsx` | Creating folders via `NamePromptModal`, invalid name alerts (`CON`), renaming, copy/paste into subfolders, deleting entries, multi-select checkboxes, Light/Dark `SettingsModal` | Done |
+| `src/features/explorer/ExplorerViewAndNav.test.tsx` | Windows vs. Android `Home` root filtering, custom folder mounting (`Open Folder...`), `Up` / `Forward` / `Breadcrumb` / `Refresh` navigation, `List` view headers, `Hidden` dotfiles, and `Sort` controls | Done |
+| `src/features/explorer/ExplorerSelectionAndFileOps.test.tsx` | `Multi-Select` mode toggle, `Select All` and `Clear`, `New File` creation, `Cut` (move) + `Paste Here`, and launching files via the native system opener (`openPath`) | Done |
 
 ---
 

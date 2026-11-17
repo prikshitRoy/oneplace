@@ -135,6 +135,7 @@ yarn build
 
 > Newest entry on top. One line per change: date — what changed.
 
+- `2026-11-17` — Added `ExplorerViewAndNav.test.tsx` and `ExplorerSelectionAndFileOps.test.tsx` to achieve 100% Layer 2 UI integration test coverage across all checklist flows.
 - `2026-11-17` — Completed Layer 2 UI integration test suite (`ExplorerOperations.test.tsx`) covering folder/file creation, validation alerts, rename, copy/paste, multi-delete, and Light/Dark theme switching.
 - `2026-11-17` — Added `APP_TEST_CHECKLIST.md`, configured Layer 2 UI integration testing (`@testing-library/react`, `jsdom`, `fake-tauri-fs.ts`), and added `ExplorerShell.test.tsx` (Part 1).
 - `2026-11-17` — Completed Step 5 UI polish: decluttered `ActionToolbar` with `ActionIcons`, updated `NamePromptModal` for Light/Dark themes, and streamlined `ExplorerShell` status bar.
