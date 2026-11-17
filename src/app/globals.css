@@ -3,21 +3,66 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --panel: #ffffff;
+  --elevated: #f1f5f9;
+  --border: #e2e8f0;
+  --muted: #64748b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html.dark {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --panel: #121215;
+  --elevated: #1e1e24;
+  --border: #27272a;
+  --muted: #a1a1aa;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Light-mode surface mapping so existing neutral panels adapt cleanly when not in .dark mode */
+html:not(.dark) .bg-neutral-950 {
+  background-color: #f8fafc;
+}
+
+html:not(.dark) .bg-neutral-900,
+html:not(.dark) .bg-neutral-900\/95,
+html:not(.dark) .bg-neutral-900\/80,
+html:not(.dark) .bg-neutral-900\/60,
+html:not(.dark) .bg-neutral-900\/40 {
+  background-color: #ffffff;
+}
+
+html:not(.dark) .bg-neutral-800,
+html:not(.dark) .bg-neutral-800\/60 {
+  background-color: #f1f5f9;
+}
+
+html:not(.dark) .border-neutral-800,
+html:not(.dark) .border-neutral-800\/70,
+html:not(.dark) .border-neutral-700 {
+  border-color: #cbd5e1;
+}
+
+html:not(.dark) .divide-neutral-800\/70 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0;
+}
+
+html:not(.dark) .text-neutral-100,
+html:not(.dark) .text-neutral-200 {
+  color: #0f172a;
+}
+
+html:not(.dark) .text-neutral-300,
+html:not(.dark) .text-neutral-400,
+html:not(.dark) .text-neutral-500 {
+  color: #475569;
 }
 
 @layer utilities {
