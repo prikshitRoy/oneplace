@@ -83,7 +83,7 @@ Status key: **Done** | **In progress** | **Planned**
 | Test File | User Flows Covered | Status |
 | --------- | ------------------ | ------ |
 | `src/features/explorer/ExplorerShell.test.tsx` (Part 1) | Initial `Documents` directory rendering, subfolder navigation (`Open` + `Back`), sidebar root switching (`Downloads`), live search filtering and reset | Done |
-| `src/features/explorer/ExplorerShell.test.tsx` (Part 2) | Creating folders/files via `NamePromptModal`, invalid name alerts, renaming, copy/cut/paste, deleting entries, multi-select checkboxes, Light/Dark `SettingsModal` | Planned |
+| `src/features/explorer/ExplorerActions.test.tsx` | Creating folders via `NamePromptModal`, invalid name alerts (`CON`), renaming, copy/paste into subfolders, deleting entries, multi-select checkboxes, Light/Dark `SettingsModal` | Done |
 
 ---
 
