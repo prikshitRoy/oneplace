@@ -9,8 +9,8 @@
     "build": "tauri build",
     "dev": "tauri dev",
     "test": "vitest run",
-        "test:unit": "vitest run src/features/**/*.test.ts",
-        "test:integration": "vitest run src/features/**/*.test.tsx",
+        "test:unit": "vitest run --exclude \"**/*.test.tsx\"",
+        "test:integration": "vitest run .test.tsx",
         "test:watch": "vitest"
   },
   "dependencies": {
