@@ -1,7 +1,19 @@
-// Top navigation toolbar with history controls, breadcrumbs, search, sort, and view toggles.
+// Top navigation toolbar with icon history controls, recessed breadcrumb bar, search, and view switcher.
 
 import type { BreadcrumbSegment, VirtualPath } from "@/features/file-system";
 import type { FilterConfig, SortConfig, SortField } from "@/features/navigation";
+import { RootLocationIcon } from "./ExplorerIcons";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowUpIcon,
+  ChevronRightIcon,
+  EyeIcon,
+  GridViewIcon,
+  ListViewIcon,
+  RefreshIcon,
+  SearchIcon,
+} from "./ToolbarIcons";
 import type { ExplorerViewMode } from "./types";
 
 export interface ExplorerToolbarProps {
@@ -24,7 +36,7 @@ export interface ExplorerToolbarProps {
   readonly onViewModeChange: (mode: ExplorerViewMode) => void;
 }
 
-/** Renders the top navigation, breadcrumb trail, search input, and view controls. */
+/** Renders the top navigation cluster, clickable address bar, search input, and view controls. */
 export function ExplorerToolbar({
   breadcrumbs,
   canGoBack,
@@ -44,65 +56,82 @@ export function ExplorerToolbar({
   onToggleSortDirection,
   onViewModeChange,
 }: ExplorerToolbarProps) {
+  const activeRootId = breadcrumbs[0]?.targetPath.rootId ?? "documents";
+
   return (
-    <header className="flex flex-col gap-2 border-b border-neutral-800 bg-neutral-900/80 p-3">
+    <header className="flex flex-col gap-2.5 border-b border-border bg-panel px-3.5 py-2.5">
+      {/* Top row: Navigation icon cluster + Recessed Breadcrumb Address Bar + Search */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* History & parent navigation buttons */}
-        <div className="flex items-center gap-1">
+        {/* Back / Forward / Up / Refresh icon cluster */}
+        <div className="flex items-center rounded-xl border border-border bg-elevated p-0.5">
           <button
             type="button"
             disabled={!canGoBack}
             onClick={onNavigateBack}
+            title="Back"
             aria-label="Navigate back"
-            className="rounded border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs font-medium text-neutral-200 disabled:opacity-40"
+            className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-panel disabled:pointer-events-none disabled:opacity-35"
           >
-            Back
+            <ArrowLeftIcon className="h-4 w-4" />
           </button>
           <button
             type="button"
             disabled={!canGoForward}
             onClick={onNavigateForward}
+            title="Forward"
             aria-label="Navigate forward"
-            className="rounded border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs font-medium text-neutral-200 disabled:opacity-40"
+            className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-panel disabled:pointer-events-none disabled:opacity-35"
           >
-            Next
+            <ArrowRightIcon className="h-4 w-4" />
           </button>
           <button
             type="button"
             disabled={!hasParent}
             onClick={onNavigateUp}
+            title="Parent folder"
             aria-label="Navigate to parent folder"
-            className="rounded border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs font-medium text-neutral-200 disabled:opacity-40"
+            className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-panel disabled:pointer-events-none disabled:opacity-35"
           >
-            Up
+            <ArrowUpIcon className="h-4 w-4" />
           </button>
+          <div className="mx-0.5 h-4 w-px bg-border" />
           <button
             type="button"
             onClick={onRefresh}
+            title="Refresh folder"
             aria-label="Refresh directory"
-            className="rounded border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs font-medium text-neutral-200 hover:border-neutral-500"
+            className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-panel"
           >
-            Refresh
+            <RefreshIcon className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Clickable breadcrumb bar */}
+        {/* Recessed clickable breadcrumb address bar */}
         <nav
           aria-label="Breadcrumb"
-          className="flex flex-1 items-center gap-1 overflow-x-auto rounded border border-neutral-800 bg-neutral-950 px-2.5 py-1 text-xs text-neutral-300"
+          className="flex min-w-[200px] flex-1 items-center gap-1 overflow-x-auto rounded-xl border border-border bg-background px-3 py-1.5 text-xs shadow-inner"
         >
+          <RootLocationIcon
+            rootId={activeRootId}
+            className="mr-1 h-4 w-4 shrink-0 text-sky-500"
+          />
           {breadcrumbs.map((segment, index) => {
             const isLast = index === breadcrumbs.length - 1;
             return (
-              <div key={`${segment.label}-${index}`} className="flex items-center gap-1">
-                {index > 0 && <span className="text-neutral-600">/</span>}
+              <div
+                key={`${segment.label}-${index}`}
+                className="flex shrink-0 items-center gap-1"
+              >
+                {index > 0 && (
+                  <ChevronRightIcon className="h-3.5 w-3.5 text-muted" />
+                )}
                 <button
                   type="button"
                   onClick={() => onSelectBreadcrumb(segment.targetPath)}
-                  className={`truncate rounded px-1.5 py-0.5 transition-colors ${
+                  className={`truncate rounded-md px-2 py-0.5 transition-colors ${
                     isLast
-                      ? "font-semibold text-sky-400"
-                      : "text-neutral-300 hover:bg-neutral-800 hover:text-white"
+                      ? "bg-sky-500/15 font-semibold text-sky-500"
+                      : " font-medium text-muted hover:bg-elevated hover:text-foreground"
                   }`}
                 >
                   {segment.label}
@@ -111,57 +140,104 @@ export function ExplorerToolbar({
             );
           })}
         </nav>
+
+        {/* Search input with icon and clear button */}
+        <div className="relative flex min-w-[190px] items-center sm:w-64">
+          <SearchIcon className="pointer-events-none absolute left-3 h-3.5 w-3.5 text-muted" />
+          <input
+            type="search"
+            value={filterConfig.searchQuery}
+            onChange={(event) => onSearchChange(event.currentTarget.value)}
+            placeholder="Filter current folder..."
+            aria-label="Filter current folder"
+            className="w-full rounded-xl border border-border bg-background py-1.5 pl-8 pr-7 text-xs text-foreground placeholder-muted focus:border-sky-500 focus:outline-none"
+          />
+          {filterConfig.searchQuery && (
+            <button
+              type="button"
+              onClick={() => onSearchChange("")}
+              aria-label="Clear search filter"
+              className="absolute right-2 rounded px-1 text-xs font-bold text-muted hover:text-foreground"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Search, Sort, Hidden toggle, and Grid/List mode selector */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <input
-          type="search"
-          value={filterConfig.searchQuery}
-          onChange={(event) => onSearchChange(event.currentTarget.value)}
-          placeholder="Search current folder..."
-          className="min-w-[180px] flex-1 rounded border border-neutral-700 bg-neutral-950 px-2.5 py-1 text-xs text-neutral-100 placeholder-neutral-500 focus:border-sky-500 focus:outline-none"
-        />
-
+      {/* Secondary row: Sort selector, Hidden files toggle, and Grid/List segmented control */}
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
         <div className="flex flex-wrap items-center gap-1.5">
-          <select
-            aria-label="Sort by field"
-            value={sortConfig.field}
-            onChange={(event) => onSortFieldChange(event.currentTarget.value as SortField)}
-            className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-xs text-neutral-200"
-          >
-            <option value="name">Sort: Name</option>
-            <option value="size">Sort: Size</option>
-            <option value="modifiedAt">Sort: Date</option>
-            <option value="extension">Sort: Type</option>
-          </select>
+          {/* Sort field + direction pill */}
+          <div className="flex items-center rounded-lg border border-border bg-elevated px-2 py-1">
+            <span className="mr-1.5 text-[11px] font-medium text-muted">Sort:</span>
+            <select
+              aria-label="Sort by field"
+              value={sortConfig.field}
+              onChange={(event) =>
+                onSortFieldChange(event.currentTarget.value as SortField)
+              }
+              className="bg-transparent font-medium text-foreground focus:outline-none"
+            >
+              <option value="name" className="bg-panel text-foreground">Name</option>
+              <option value="size" className="bg-panel text-foreground">Size</option>
+              <option value="modifiedAt" className="bg-panel text-foreground">Modified</option>
+              <option value="extension" className="bg-panel text-foreground">Type</option>
+            </select>
+            <button
+              type="button"
+              onClick={onToggleSortDirection}
+              title={`Sort ${sortConfig.direction === "asc" ? "ascending" : "descending"}`}
+              className="ml-1.5 rounded bg-panel px-1.5 py-0.5 text-[10px] font-bold text-sky-500 hover:bg-sky-500/15"
+            >
+              {sortConfig.direction === "asc" ? "↑ ASC" : "↓ DESC"}
+            </button>
+          </div>
 
-          <button
-            type="button"
-            onClick={onToggleSortDirection}
-            className="rounded border border-neutral-700 bg-neutral-800 px-2 py-1 text-xs font-medium text-neutral-200"
-          >
-            {sortConfig.direction === "asc" ? "ASC" : "DESC"}
-          </button>
-
+          {/* Show/Hide dot-files toggle */}
           <button
             type="button"
             onClick={onToggleHidden}
-            className={`rounded border px-2 py-1 text-xs font-medium ${
+            className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-medium transition-colors ${
               filterConfig.shouldShowHidden
-                ? "border-sky-500 bg-sky-500/20 text-sky-300"
-                : "border-neutral-700 bg-neutral-800 text-neutral-300"
+                ? "border-sky-500/60 bg-sky-500/15 text-sky-500"
+                : "border-border bg-elevated text-muted hover:text-foreground"
             }`}
           >
-            Hidden
+            <EyeIcon isVisible={filterConfig.shouldShowHidden} className="h-3.5 w-3.5" />
+            <span>Hidden</span>
           </button>
+        </div>
 
+        {/* Segmented Grid / List view switcher */}
+        <div
+          role="group"
+          aria-label="View mode"
+          className="flex items-center rounded-lg border border-border bg-elevated p-0.5"
+        >
           <button
             type="button"
-            onClick={() => onViewModeChange(viewMode === "grid" ? "list" : "grid")}
-            className="rounded border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs font-medium text-neutral-200"
+            onClick={() => onViewModeChange("grid")}
+            className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-medium transition-colors ${
+              viewMode === "grid"
+                ? "bg-sky-600 text-white shadow-sm"
+                : "text-muted hover:text-foreground"
+            }`}
           >
-            {viewMode === "grid" ? "List View" : "Grid View"}
+            <GridViewIcon className="h-3.5 w-3.5" />
+            <span>Grid</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onViewModeChange("list")}
+            className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-medium transition-colors ${
+              viewMode === "list"
+                ? "bg-sky-600 text-white shadow-sm"
+                : "text-muted hover:text-foreground"
+            }`}
+          >
+            <ListViewIcon className="h-3.5 w-3.5" />
+            <span>List</span>
           </button>
         </div>
       </div>
