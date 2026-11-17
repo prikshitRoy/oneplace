@@ -34,3 +34,31 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Rust
+/src-tauri/target/
+/src-tauri/gen/schemas/
+
+# Android
+local.properties
+.gradle/
+*.apk
+*.aab
+/src-tauri/gen/android/.gradle/
+/src-tauri/gen/android/app/build/
+/src-tauri/gen/android/build/
+
+# iOS / macOS
+DerivedData/
+xcuserdata/
+*.xcuserstate
+/src-tauri/gen/apple/build/
+/src-tauri/gen/apple/Pods/
+
+# Secrets & OS
+Thumbs.db
+.idea/
+*.swp
+*.key
+*.keystore
+*.jks
