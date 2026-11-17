@@ -63,9 +63,9 @@ Status key: **Done** | **In progress** | **Planned**
 | Feature                                                        | Status  |
 | -------------------------------------------------------------- | ------- |
 | Cross-platform path normalization and `VirtualPath` resolver   | Done    |
-| Directory listing with metadata (size, modified date, type)    | Planned |
-| File/folder create, rename, copy, move, and delete operations  | Planned |
-| Native file opener integration (`@tauri-apps/plugin-opener`)   | Planned |
+| Directory listing with metadata (size, modified date, type)    | Done    |
+| File/folder create, rename, copy, move, and delete operations  | Done    |
+| Native file opener integration (`@tauri-apps/plugin-opener`)   | Done    |
 
 ### 4.3 Navigation & Selection (`src/features/navigation/`, `src/features/selection/`)
 
@@ -98,7 +98,7 @@ tauri-2.0-nextjs-14.2.23-template/
 ├── src/
 │   ├── app/                    # Next.js App Router root layout and entry page
 │   └── features/               # Modular feature directories
-│       ├── file-system/        # VirtualPath contracts, path resolver, & unit tests (IPC adapter planned)
+│       ├── file-system/        # VirtualPath contracts, path resolver, Tauri FS/Dialog/Opener  adapters, & tests
 │       ├── navigation/         # Pure history stack, sorting, filtering, & unit tests
 │       ├── selection/          # Pure item selection, clipboard state, & unit tests
 │       └── explorer/           # Planned: responsive UI components (grid, list, bars)
@@ -132,6 +132,7 @@ yarn build
 
 > Newest entry on top. One line per change: date — what changed.
 
+- `2026-11-17` — Implemented Phase 3 Tauri file system adapter (`directory-reader`, `file-operations`, `tauri-target`, `validation`) with unit tests and capability permissions.
 - `2026-11-17` — Added pure `file-system` path resolver, `navigation` history/sort/filter, and `selection` modules with Vitest unit tests.
 - `2026-11-17` — Renamed app to "One Place" (`one-place`), updated `.gitignore`, configured Tauri `fs`/`dialog`/`os` plugins and capabilities, and added Vitest.
 - `2026-11-17` — Initialized `PROJECT_OVERVIEW.md` with cross-platform file manager architecture and feature roadmap.
