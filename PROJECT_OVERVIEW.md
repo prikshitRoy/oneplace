@@ -134,6 +134,7 @@ yarn build
 
 > Newest entry on top. One line per change: date — what changed.
 
+- `2026-11-17` — Redesigned `ExplorerToolbar` with icon navigation cluster (`ToolbarIcons`), recessed breadcrumb address bar, search clear button, and segmented Grid/List view toggle.
 - `2026-11-17` — Upgraded `StorageNavigation` with SVG location icons (`ExplorerIcons`), mounted custom folder indicator, and integrated Settings trigger.
 - `2026-11-17` — Fixed Tailwind `src/features` content scanning and added `settings` module with Light, Dark, and System theme switching.
 - `2026-11-17` — Built Phase 4 adaptive `explorer` UI (`ExplorerShell`, toolbars, grid/list views, modal prompt, pure formatters + unit tests) and wired into `src/app/page.tsx`.
