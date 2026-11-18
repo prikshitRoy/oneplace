@@ -53,11 +53,14 @@ function isAndroidRuntime(): boolean {
 /** Converts a VirtualPath into a path string and BaseDirectory for plugin-fs. */
 export function resolveTauriFsTarget(virtualPath: VirtualPath): TauriFsTarget {
   if (virtualPath.rootId === "customDrive") {
-    const prefix = (virtualPath.mountPrefix ?? "").replace(/\/+$/, "");
-    const combined = virtualPath.relativePath
-      ? `${prefix}/${virtualPath.relativePath}`
-      : prefix || "/";
-    return { targetPath: combined };
+    const prefix = (virtualPath.mountPrefix ?? "")
+      .replace(/\\/g, "/")
+      .replace(/\/+$/, "");
+    if (virtualPath.relativePath) {
+      return { targetPath: `${prefix}/${virtualPath.relativePath}` };
+    }
+    const isWindowsDriveRoot = /^[A-Za-z]:$/.test(prefix);
+    return { targetPath: isWindowsDriveRoot ? `${prefix}/` : prefix || "/" };
   }
 
   // On Android, point public media/document tabs to shared phone storage instead of the empty app sandbox

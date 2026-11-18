@@ -1,15 +1,23 @@
 // Side-effect adapter for listing directory entries and detecting platform storage roots.
 
+import { invoke } from "@tauri-apps/api/core";
 import { mkdir, readDir, stat, type DirEntry } from "@tauri-apps/plugin-fs";
 import { type as getOsType } from "@tauri-apps/plugin-os";
 import { DEFAULT_STORAGE_ROOTS } from "./constants";
 import {
+  createVirtualPath,
   extractFileExtension,
   isHiddenEntryName,
   joinVirtualPath,
 } from "./path-resolver";
 import { resolveTauriFsTarget } from "./tauri-target";
-import type { FileEntry, FileKind, StorageRoot, VirtualPath } from "./types";
+import type {
+  FileEntry,
+  FileKind,
+  StorageRoot,
+  SystemDrive,
+  VirtualPath,
+} from "./types";
 
 /** Maps Tauri's DirEntry flags to our unified FileKind type. */
 function resolveFileKind(rawEntry: DirEntry): FileKind {
@@ -92,6 +100,38 @@ export async function listDirectoryEntries(
     );
   }
 }
+
+
+/** Formats a Windows drive root (e.g., "C:/" or "E:\") into a sidebar label ("Drive (C:)"). */
+export function formatWindowsDriveLabel(mountPath: string): string {
+  const cleaned = mountPath.replace(/\\/g, "/").replace(/\/+$/, "").toUpperCase();
+  const driveLetter = cleaned.endsWith(":") ? cleaned : `${cleaned}:`;
+  return `Drive (${driveLetter})`;
+}
+
+/** Queries mounted Windows drives via Tauri IPC. Returns empty on non-Windows platforms for now. */
+export async function getAvailableSystemDrives(): Promise<SystemDrive[]> {
+  try {
+    if (getOsType() !== "windows") {
+      return [];
+    }
+
+    const rawDriveRoots = await invoke<string[]>("list_system_drives");
+    return rawDriveRoots.map((rawRoot): SystemDrive => {
+      const cleaned = rawRoot.replace(/\\/g, "/").replace(/\/+$/, "");
+      const mountPath = `${cleaned}/`;
+      return {
+        id: `windows-drive-${cleaned.toLowerCase()}`,
+        label: formatWindowsDriveLabel(mountPath),
+        mountPath,
+        rootPath: createVirtualPath("customDrive", "", mountPath),
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
 
 /** Returns the list of storage roots supported on the current OS (filtering desktop-only roots on mobile). */
 export function getAvailableStorageRoots(): StorageRoot[] {

@@ -61,3 +61,11 @@ export interface BreadcrumbSegment {
   /** Target virtual path when the user clicks this breadcrumb. */
   readonly targetPath: VirtualPath;
 }
+
+/** Represents a detected OS drive or volume (such as C:/ or E:/ on Windows). */
+export interface SystemDrive {
+  readonly id: string;
+  readonly label: string;
+  readonly mountPath: string;
+  readonly rootPath: VirtualPath;
+}

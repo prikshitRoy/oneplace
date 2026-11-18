@@ -1,10 +1,18 @@
-// Responsive storage root navigation rendering an icon-driven desktop sidebar and mobile bottom bar.
+// Responsive storage root and OS drive navigation rendering a desktop sidebar and mobile bottom bar.
 
-import { createVirtualPath, type StorageRoot, type VirtualPath } from "@/features/file-system";
+import { useEffect, useState } from "react";
+import {
+  createVirtualPath,
+  getAvailableSystemDrives,
+  type StorageRoot,
+  type SystemDrive,
+  type VirtualPath,
+} from "@/features/file-system";
 import type { ResolvedTheme } from "@/features/settings";
 import {
   AppLogoIcon,
   FolderPlusIcon,
+  HardDriveIcon,
   RootLocationIcon,
   SettingsIcon,
 } from "./ExplorerIcons";
@@ -19,7 +27,12 @@ export interface StorageNavigationProps {
   readonly onOpenSettings: () => void;
 }
 
-/** Renders both the desktop left sidebar and the mobile bottom navigation bar with icons. */
+/** Normalizes a mount path for case-insensitive Windows drive comparisons. */
+function normalizeMountKey(rawPath: string | undefined): string {
+  return (rawPath ?? "").replace(/\\/g, "/").replace(/\/+$/, "").toLowerCase();
+}
+
+/** Renders both the desktop left sidebar (Locations + Drives) and the mobile bottom bar. */
 export function StorageNavigation({
   roots,
   currentPath,
@@ -28,8 +41,28 @@ export function StorageNavigation({
   onPickCustomFolder,
   onOpenSettings,
 }: StorageNavigationProps) {
+  const [systemDrives, setSystemDrives] = useState<readonly SystemDrive[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    getAvailableSystemDrives().then((drives) => {
+      if (isMounted) {
+        setSystemDrives(drives);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [roots]);
+
+  const activeMountKey = normalizeMountKey(currentPath.mountPrefix);
+  const isSystemDriveActive =
+    currentPath.rootId === "customDrive" &&
+    systemDrives.some((drive) => normalizeMountKey(drive.mountPath) === activeMountKey);
   const isCustomMountActive =
-    currentPath.rootId === "customDrive" && Boolean(currentPath.mountPrefix);
+    currentPath.rootId === "customDrive" &&
+    Boolean(currentPath.mountPrefix) &&
+    !isSystemDriveActive;
   const customMountLabel = formatCustomMountLabel(currentPath.mountPrefix);
 
   return (
@@ -67,7 +100,9 @@ export function StorageNavigation({
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
           {roots.map((root) => {
             const isActiveRoot =
-              currentPath.rootId === root.id && !isCustomMountActive;
+              currentPath.rootId === root.id &&
+              !isCustomMountActive &&
+              !isSystemDriveActive;
             return (
               <button
                 key={root.id}
@@ -97,7 +132,50 @@ export function StorageNavigation({
             );
           })}
 
-          {/* Active mounted folder indicator when browsing an external/custom directory */}
+          {/* Detected Windows system drives (C:/, D:/, E:/, etc.) */}
+          {systemDrives.length > 0 && (
+            <div className="mt-3">
+              <div className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
+                Drives
+              </div>
+              <div className="flex flex-col gap-1">
+                {systemDrives.map((drive) => {
+                  const isActiveDrive =
+                    currentPath.rootId === "customDrive" &&
+                    normalizeMountKey(drive.mountPath) === activeMountKey;
+                  return (
+                    <button
+                      key={drive.id}
+                      type="button"
+                      onClick={() => onSelectRoot(drive.rootPath)}
+                      title={drive.mountPath}
+                      className={`group flex items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-medium transition-all ${
+                        isActiveDrive
+                          ? "bg-sky-600 text-white shadow-sm"
+                          : "text-foreground/80 hover:bg-elevated hover:text-foreground"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5 truncate">
+                        <HardDriveIcon
+                          className={`h-4 w-4 shrink-0 ${
+                            isActiveDrive
+                              ? "text-white"
+                              : "text-sky-500 group-hover:text-sky-400"
+                          }`}
+                        />
+                        <span className="truncate">{drive.label}</span>
+                      </span>
+                      {isActiveDrive && (
+                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Active mounted folder indicator when browsing a non-drive custom folder */}
           {isCustomMountActive && (
             <div className="mt-3">
               <div className="px-2 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
@@ -160,7 +238,9 @@ export function StorageNavigation({
       >
         {roots.map((root) => {
           const isActiveRoot =
-            currentPath.rootId === root.id && !isCustomMountActive;
+            currentPath.rootId === root.id &&
+            !isCustomMountActive &&
+            !isSystemDriveActive;
           return (
             <button
               key={root.id}
@@ -181,7 +261,7 @@ export function StorageNavigation({
         <button
           type="button"
           onClick={onPickCustomFolder}
-          className="flex flex-col items-center gap-0.5 rounded-lg px-2.5 py-1 text-[10px] font-medium text-muted hover:text-foreground"
+          className="flex shrink-0 flex-col items-center gap-0.5 rounded-lg px-2.5 py-1 text-[10px] font-medium text-muted hover:text-foreground"
         >
           <FolderPlusIcon className="h-4 w-4 text-sky-500" />
           <span>Folder</span>
@@ -190,7 +270,7 @@ export function StorageNavigation({
         <button
           type="button"
           onClick={onOpenSettings}
-          className="flex flex-col items-center gap-0.5 rounded-lg px-2.5 py-1 text-[10px] font-medium text-muted hover:text-foreground"
+          className="flex shrink-0 flex-col items-center gap-0.5 rounded-lg px-2.5 py-1 text-[10px] font-medium text-muted hover:text-foreground"
         >
           <SettingsIcon className="h-4 w-4" />
           <span>Settings</span>

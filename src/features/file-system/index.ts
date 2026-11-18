@@ -6,6 +6,7 @@ export type {
   FileKind,
   RootLocationId,
   StorageRoot,
+  SystemDrive,
   VirtualPath,
 } from "./types";
 
@@ -34,7 +35,9 @@ export type { TauriFsTarget } from "./tauri-target";
 export { resolveNativeSystemPath, resolveTauriFsTarget } from "./tauri-target";
 
 export {
+  formatWindowsDriveLabel,
   getAvailableStorageRoots,
+  getAvailableSystemDrives,
   listDirectoryEntries,
 } from "./directory-reader";
 
