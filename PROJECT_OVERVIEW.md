@@ -143,6 +143,7 @@ yarn build
 
 > Newest entry on top. One line per change: date — what changed.
 
+- `2026-11-18` — Added Android storage volume visibility (`parse_android_mounts` for `Internal Storage` `/storage/emulated/0` and removable `/storage/<UUID>` SD/OTG volumes, plus mobile bottom bar drive buttons).
 - `2026-11-18` — Added Ubuntu Linux drive and mount visibility (`parse_linux_mounts` in Rust for `/`, `/media/*`, `/run/media/*`, and `/mnt/*`, plus `formatSystemDriveLabel` and Linux UI integration tests).
 - `2026-11-18` — Added Windows drive detection (`list_system_drives` in Rust + `FsExt` scope registration, `getAvailableSystemDrives`, and sidebar `Drives` section in `StorageNavigation`).
 - `2026-11-18` — Completed full automated and manual cross-platform verification on Ubuntu Linux, Windows, and Android (`APP_TEST_CHECKLIST.md`).

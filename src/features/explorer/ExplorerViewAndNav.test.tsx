@@ -117,6 +117,14 @@ const SEED_NODES: readonly FakeFsNode[] = [
     sizeBytes: 0,
     mtimeMs: Date.UTC(2026, 10, 17, 17, 0, 0),
   },
+  {
+    baseDir: undefined,
+    parentPath: "storage/emulated/0",
+    name: "DCIM",
+    isDirectory: true,
+    sizeBytes: 0,
+    mtimeMs: Date.UTC(2026, 10, 17, 18, 0, 0),
+  },
 ];
 
 describe("ExplorerShell UI integration — Platform Roots, Navigation & Views", () => {
@@ -281,5 +289,37 @@ describe("ExplorerShell UI integration — Platform Roots, Navigation & Views", 
     // Assert: loads mounted Linux drive entries and updates footer location
     expect(await screen.findByText("linux-builds")).toBeInTheDocument();
     expect(screen.getByText("Location: /mnt/work_ssd")).toBeInTheDocument();
+  });
+
+  it("displays Internal Storage and SD Card volumes on Android and navigates into Internal Storage", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    resetFakeFileSystem(SEED_NODES, "android");
+    render(<ExplorerShell />);
+    await screen.findByText("Projects");
+
+    const mobileBottomBar = screen.getByRole("navigation", {
+      name: "Mobile storage locations",
+    });
+
+    // Assert: Internal Storage and SD Card (1A2B-3C4D) appear in the mobile navigation bar
+    const internalStorageBtn = await within(mobileBottomBar).findByRole(
+      "button",
+      { name: "Internal Storage" }
+    );
+    expect(
+      within(mobileBottomBar).getByRole("button", {
+        name: "SD Card (1A2B-3C4D)",
+      })
+    ).toBeInTheDocument();
+
+    // Act: tap Internal Storage
+    await user.click(internalStorageBtn);
+
+    // Assert: loads full Android internal storage root (including DCIM)
+    expect(await screen.findByText("DCIM")).toBeInTheDocument();
+    expect(
+      screen.getByText("Location: /storage/emulated/0")
+    ).toBeInTheDocument();
   });
 });

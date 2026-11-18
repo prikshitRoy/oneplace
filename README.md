@@ -6,7 +6,7 @@
 
 ## Key Features
 
-- **Cross-Platform Storage Navigation:** Browse standard user locations (`Documents`, `Downloads`, `Pictures`, `Videos`, `Music`, `App Storage`, and desktop `Home`) or mount any external directory via the native OS folder picker (`Open Folder...`).
+- **Cross-Platform Storage & Drive Navigation:** Browse standard user locations (`Documents`, `Downloads`, `Pictures`, `Videos`, `Music`, `App Storage`, and desktop `Home`), detected OS drives and volumes (`Drive (C:)`, `Drive (E:)` on Windows; `System Root (/)`, `/media/*`, `/mnt/*` on Linux; `Internal Storage` and `SD Card` on Android), or mount any directory via the native folder picker (`Open Folder...`).
 - **Android Shared Storage & SAF Support:** Maps mobile tabs directly to `/storage/emulated/0/...` shared directories and decodes Android Storage Access Framework (`content://`) tree URIs into POSIX paths.
 - **Full History & Breadcrumb Address Bar:** Navigate with `Back`, `Forward`, `Parent Folder (Up)`, `Refresh`, and clickable path segments inside a recessed address bar.
 - **Visual Grid & Structured List Views:** Switch between card-based Grid view and tabular List view with category-coded vector icons for folders, images, videos, audio, archives, code, and documents.

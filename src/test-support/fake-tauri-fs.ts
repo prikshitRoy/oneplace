@@ -18,6 +18,7 @@ interface FakeFsState {
   openedPaths: string[];
   windowsDrives: string[];
   linuxDrives: string[];
+  androidDrives: string[];
   nodes: FakeFsNode[];
 }
 
@@ -29,6 +30,7 @@ const state: FakeFsState = {
   openedPaths: [],
   windowsDrives: ["C:/", "E:/"],
   linuxDrives: ["/", "/mnt/work_ssd"],
+  androidDrives: ["/storage/emulated/0", "/storage/1A2B-3C4D"],
   nodes: [],
 };
 
@@ -61,6 +63,8 @@ export function resetFakeFileSystem(
   state.openedPaths = [];
   state.windowsDrives = osType === "windows" ? ["C:/", "E:/"] : [];
   state.linuxDrives = osType === "linux" ? ["/", "/mnt/work_ssd"] : [];
+  state.androidDrives =
+    osType === "android" ? ["/storage/emulated/0", "/storage/1A2B-3C4D"] : [];
   state.nodes = seedNodes.map((node) => ({ ...node }));
 }
 
@@ -268,6 +272,9 @@ export async function fakeInvokeCommand(cmd: string): Promise<unknown> {
     }
     if (state.osType === "linux") {
       return state.linuxDrives;
+    }
+    if (state.osType === "android") {
+      return state.androidDrives;
     }
     return [];
   }
