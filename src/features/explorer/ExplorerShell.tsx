@@ -2,7 +2,18 @@
 
 "use client";
 
-import { useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type TouchEvent,
+} from "react";
+import {
+  isInwardEdgeBackSwipe,
+  resolveBackNavigationAction,
+} from "@/features/navigation";
 import { SettingsModal, useThemeSettings } from "@/features/settings";
 import { ActionToolbar } from "./ActionToolbar";
 import { ExplorerToolbar } from "./ExplorerToolbar";
@@ -16,6 +27,8 @@ export function ExplorerShell() {
   const controller = useExplorerController();
   const theme = useThemeSettings();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const lastBackActionMsRef = useRef<number>(0);
 
   function openRenameModal(): void {
     const selectedTarget = controller.selectionState.selectedPaths[0];
@@ -32,8 +45,147 @@ export function ExplorerShell() {
     });
   }
 
-return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
+  const activeBackAction = useMemo(
+    () =>
+      resolveBackNavigationAction({
+        hasOpenModal: controller.promptModal !== null || isSettingsOpen,
+        hasSelection: controller.selectionState.selectedPaths.length > 0,
+        isMultiSelectMode: controller.isMultiSelectMode,
+        canNavigateBack: controller.canGoBack,
+        hasParentDirectory: controller.hasParent,
+      }),
+    [
+      controller.canGoBack,
+      controller.hasParent,
+      controller.isMultiSelectMode,
+      controller.promptModal,
+      controller.selectionState.selectedPaths.length,
+      isSettingsOpen,
+    ]
+  );
+
+
+const executeBackNavigation = useCallback((): boolean => {
+    const now = Date.now();
+    // If a touch edge-swipe and OS back event fire together within 300ms, report handled (true) without double-jumping
+    if (now - lastBackActionMsRef.current < 300) {
+      return true;
+    }
+
+    if (activeBackAction === "close-modal") {
+      lastBackActionMsRef.current = now;
+      controller.setPromptModal(null);
+      setIsSettingsOpen(false);
+      return true;
+    }
+
+    if (activeBackAction === "clear-selection") {
+      lastBackActionMsRef.current = now;
+      controller.handleClearSelection();
+      if (controller.isMultiSelectMode) {
+        controller.handleToggleMultiSelectMode();
+      }
+      return true;
+    }
+
+    if (activeBackAction === "history-back") {
+      lastBackActionMsRef.current = now;
+      controller.handleNavigateBack();
+      return true;
+    }
+
+    if (activeBackAction === "parent-folder") {
+      lastBackActionMsRef.current = now;
+      controller.handleNavigateUp();
+      return true;
+    }
+
+    return false;
+  }, [activeBackAction, controller]);
+
+  // Expose native Android back hook for MainActivity.kt OnBackPressedCallback
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const win = window as unknown as {
+      __ONE_PLACE_HANDLE_BACK__?: () => boolean;
+    };
+    win.__ONE_PLACE_HANDLE_BACK__ = () => executeBackNavigation();
+    return () => {
+      delete win.__ONE_PLACE_HANDLE_BACK__;
+    };
+  }, [executeBackNavigation]);
+
+  // Push a browser history guard on each navigation state change for WebView popstate fallback
+  useEffect(() => {
+    if (typeof window === "undefined" || activeBackAction === "none") {
+      return;
+    }
+
+    window.history.pushState({ onePlaceBackGuard: true }, "");
+
+    const handlePopState = () => {
+      const handled = executeBackNavigation();
+      if (handled) {
+        window.history.pushState({ onePlaceBackGuard: true }, "");
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [
+    activeBackAction,
+    controller.currentPath,
+    controller.promptModal,
+    controller.selectionState.selectedPaths.length,
+    executeBackNavigation,
+    isSettingsOpen,
+  ]);
+
+  const handleTouchStart = useCallback((event: TouchEvent<HTMLDivElement>) => {
+    const firstTouch = event.touches[0];
+    if (!firstTouch) {
+      return;
+    }
+    touchStartRef.current = {
+      x: firstTouch.clientX,
+      y: firstTouch.clientY,
+    };
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (event: TouchEvent<HTMLDivElement>) => {
+      const start = touchStartRef.current;
+      touchStartRef.current = null;
+      const endTouch = event.changedTouches[0];
+      if (!start || !endTouch || typeof window === "undefined") {
+        return;
+      }
+
+      const isEdgeBack = isInwardEdgeBackSwipe({
+        startX: start.x,
+        startY: start.y,
+        endX: endTouch.clientX,
+        endY: endTouch.clientY,
+        viewportWidth: window.innerWidth || 390,
+      });
+
+      if (isEdgeBack) {
+        executeBackNavigation();
+      }
+    },
+    [executeBackNavigation]
+  );
+
+  return (
+    <div
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="flex h-screen w-screen overflow-hidden bg-background text-foreground"
+    >
       <StorageNavigation
         roots={controller.roots}
         currentPath={controller.currentPath}

@@ -59,7 +59,7 @@ export function ExplorerToolbar({
   const activeRootId = breadcrumbs[0]?.targetPath.rootId ?? "documents";
 
   return (
-    <header className="flex flex-col gap-2.5 border-b border-border bg-panel px-3.5 py-2.5">
+    <header className="flex flex-col gap-2.5 border-b border-border bg-panel px-4 pb-2.5 pt-[max(env(safe-area-inset-top),2.25rem)] md:py-2.5">
       {/* Top row: Navigation icon cluster + Recessed Breadcrumb Address Bar + Search */}
       <div className="flex flex-wrap items-center gap-2">
         {/* Back / Forward / Up / Refresh icon cluster */}

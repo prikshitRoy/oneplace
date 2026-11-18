@@ -18,4 +18,14 @@ export {
   navigateToPath,
 } from "./history";
 
+export {
+  isInwardEdgeBackSwipe,
+  resolveBackNavigationAction,
+} from "./back-gesture";
+export type {
+  BackNavigationAction,
+  BackNavigationContext,
+  EdgeSwipeInput,
+} from "./back-gesture";
+
 export { filterFileEntries, sortFileEntries } from "./sort-and-filter";

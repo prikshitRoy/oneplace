@@ -241,7 +241,7 @@ export function StorageNavigation({
       {/* Mobile fixed bottom navigation bar */}
       <nav
         aria-label="Mobile storage locations"
-        className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-1 overflow-x-auto border-t border-border bg-panel/95 px-2 py-1.5 backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-1 overflow-x-auto border-t border-border bg-panel/95 px-2 pb-[max(env(safe-area-inset-bottom),0.375rem)] pt-1.5 backdrop-blur md:hidden"
       >
         {systemDrives.map((drive) => {
           const isActiveDrive =
