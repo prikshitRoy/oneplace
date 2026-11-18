@@ -109,7 +109,7 @@ export function formatWindowsDriveLabel(mountPath: string): string {
   return `Drive (${driveLetter})`;
 }
 
-/** Formats a Windows or Linux drive mount path into a concise sidebar display label. */
+/** Formats a Windows, Linux, or Android drive mount path into a concise display label. */
 export function formatSystemDriveLabel(mountPath: string): string {
   const unified = mountPath.replace(/\\/g, "/").trim();
   if (unified === "/") {
@@ -117,6 +117,15 @@ export function formatSystemDriveLabel(mountPath: string): string {
   }
 
   const trimmed = unified.replace(/\/+$/, "");
+  if (trimmed === "/storage/emulated/0") {
+    return "Internal Storage";
+  }
+
+  if (/^\/storage\/[^/]+$/i.test(trimmed)) {
+    const volumeId = trimmed.split("/").pop() ?? trimmed;
+    return `SD Card (${volumeId})`;
+  }
+
   if (/^[A-Za-z]:$/.test(trimmed)) {
     return formatWindowsDriveLabel(trimmed);
   }
@@ -126,11 +135,15 @@ export function formatSystemDriveLabel(mountPath: string): string {
   return `Drive (${folderName})`;
 }
 
-/** Queries mounted Windows or Linux drives via Tauri IPC. Returns empty on Android/iOS for now. */
+/** Queries mounted Windows, Linux, or Android drives/volumes via Tauri IPC. */
 export async function getAvailableSystemDrives(): Promise<SystemDrive[]> {
   try {
     const osType = getOsType();
-    if (osType !== "windows" && osType !== "linux") {
+    if (
+      osType !== "windows" &&
+      osType !== "linux" &&
+      osType !== "android"
+    ) {
       return [];
     }
 

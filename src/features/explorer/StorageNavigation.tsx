@@ -243,6 +243,27 @@ export function StorageNavigation({
         aria-label="Mobile storage locations"
         className="fixed inset-x-0 bottom-0 z-20 flex items-center gap-1 overflow-x-auto border-t border-border bg-panel/95 px-2 py-1.5 backdrop-blur md:hidden"
       >
+        {systemDrives.map((drive) => {
+          const isActiveDrive =
+            currentPath.rootId === "customDrive" &&
+            normalizeMountKey(drive.mountPath) === activeMountKey;
+          return (
+            <button
+              key={drive.id}
+              type="button"
+              onClick={() => onSelectRoot(drive.rootPath)}
+              className={`flex shrink-0 flex-col items-center gap-0.5 rounded-lg px-2.5 py-1 text-[10px] font-medium transition-colors ${
+                isActiveDrive
+                  ? "bg-sky-600 text-white"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              <HardDriveIcon className="h-4 w-4" />
+              <span>{drive.label}</span>
+            </button>
+          );
+        })}
+
         {roots.map((root) => {
           const isActiveRoot =
             currentPath.rootId === root.id &&

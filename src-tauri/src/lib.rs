@@ -65,6 +65,39 @@ pub fn parse_linux_mounts(proc_mounts_content: &str) -> Vec<String> {
     return drives;
 }
 
+/// Checks whether an Android `/storage/<name>` path is a removable SD card or USB OTG volume.
+pub fn is_external_android_storage_volume(mount_point: &str) -> bool {
+    if !mount_point.starts_with("/storage/") {
+        return false;
+    }
+    let remainder = &mount_point["/storage/".len()..];
+    if remainder.is_empty() || remainder.contains('/') {
+        return false;
+    }
+    return remainder != "emulated" && remainder != "self";
+}
+
+/// Parses Android `/proc/mounts` content for Internal Storage and removable SD/OTG volumes.
+pub fn parse_android_mounts(proc_mounts_content: &str) -> Vec<String> {
+    let mut drives = vec!["/storage/emulated/0".to_string()];
+
+    for line in proc_mounts_content.lines() {
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        if parts.len() < 2 {
+            continue;
+        }
+
+        let raw_mount_point = parts[1].replace("\\040", " ");
+        if is_external_android_storage_volume(&raw_mount_point)
+            && !drives.contains(&raw_mount_point)
+        {
+            drives.push(raw_mount_point);
+        }
+    }
+
+    return drives;
+}
+
 #[cfg(target_os = "windows")]
 pub fn detect_system_drives() -> Vec<String> {
     let mut drives = Vec::new();
@@ -92,7 +125,27 @@ pub fn detect_system_drives() -> Vec<String> {
     return vec!["/".to_string()];
 }
 
-#[cfg(not(any(target_os = "windows", target_os = "linux")))]
+#[cfg(target_os = "android")]
+pub fn detect_system_drives() -> Vec<String> {
+    let mut drives = if let Ok(content) = std::fs::read_to_string("/proc/mounts") {
+        parse_android_mounts(&content)
+    } else {
+        vec!["/storage/emulated/0".to_string()]
+    };
+
+    if let Ok(entries) = std::fs::read_dir("/storage") {
+        for entry in entries.flatten() {
+            let path_string = entry.path().to_string_lossy().replace('\\', "/");
+            if is_external_android_storage_volume(&path_string) && !drives.contains(&path_string) {
+                drives.push(path_string);
+            }
+        }
+    }
+
+    return drives;
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "android")))]
 pub fn detect_system_drives() -> Vec<String> {
     return Vec::new();
 }
@@ -102,7 +155,7 @@ pub fn detect_system_drives() -> Vec<String> {
 fn list_system_drives(app: tauri::AppHandle) -> Vec<String> {
     let drives = detect_system_drives();
 
-    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    #[cfg(any(target_os = "windows", target_os = "linux", target_os = "android"))]
     {
         use tauri_plugin_fs::FsExt;
         let scope = app.fs_scope();
@@ -111,7 +164,7 @@ fn list_system_drives(app: tauri::AppHandle) -> Vec<String> {
         }
     }
 
-    #[cfg(not(any(target_os = "windows", target_os = "linux")))]
+    #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "android")))]
     let _ = &app;
 
     return drives;
@@ -154,6 +207,17 @@ sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0
             drives,
             vec!["/", "/media/ubuntu/My Passport", "/mnt/work_ssd"]
         );
+    }
+
+    #[test]
+    fn parses_android_storage_mounts_including_internal_and_sd_card() {
+        let sample_android_mounts = "\
+/dev/fuse /storage/emulated fuse rw,nosuid,nodev 0 0
+tmpfs /storage/self tmpfs rw,nosuid,nodev 0 0
+/dev/block/vold/public:179,65 /storage/1A2B-3C4D vfat rw,dirsync,nosuid,nodev 0 0
+";
+        let drives = parse_android_mounts(sample_android_mounts);
+        assert_eq!(drives, vec!["/storage/emulated/0", "/storage/1A2B-3C4D"]);
     }
 
     #[cfg(target_os = "windows")]
