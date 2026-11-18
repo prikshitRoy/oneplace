@@ -4,27 +4,97 @@
 
 /// Formats an uppercase ASCII drive letter into a normalized Windows root path (e.g., "C:/").
 pub fn format_windows_drive_root(letter: char) -> String {
-    format!("{}:/", letter.to_ascii_uppercase())
+    return format!("{}:/", letter.to_ascii_uppercase());
 }
 
-/// Detects mounted drive roots on Windows (A:/ through Z:/). Returns empty on other OSes for now.
-pub fn detect_system_drives() -> Vec<String> {
-    #[cfg(target_os = "windows")]
-    {
-        let mut drives = Vec::new();
-        for byte in b'A'..=b'Z' {
-            let root = format_windows_drive_root(byte as char);
-            if std::path::Path::new(&root).exists() {
-                drives.push(root);
-            }
-        }
-        drives
+/// Checks whether a Linux mount point and filesystem type represent a user-browsable drive.
+pub fn is_browsable_linux_mount(device: &str, mount_point: &str, fs_type: &str) -> bool {
+    if fs_type == "squashfs" || fs_type == "swap" || fs_type == "autofs" {
+        return false;
     }
 
-    #[cfg(not(target_os = "windows"))]
-    {
-        Vec::new()
+    if mount_point == "/" {
+        return true;
     }
+
+    let excluded_prefixes = ["/snap", "/var/snap", "/boot", "/proc", "/sys", "/dev"];
+    if excluded_prefixes
+        .iter()
+        .any(|prefix| mount_point.starts_with(prefix))
+    {
+        return false;
+    }
+    if mount_point.starts_with("/run") && !mount_point.starts_with("/run/media/") {
+        return false;
+    }
+
+    let is_user_mount_dir = mount_point.starts_with("/media/")
+        || mount_point.starts_with("/run/media/")
+        || mount_point.starts_with("/mnt/");
+
+    let is_block_device = device.starts_with("/dev/sd")
+        || device.starts_with("/dev/nvme")
+        || device.starts_with("/dev/vd")
+        || device.starts_with("/dev/mmcblk")
+        || device.starts_with("/dev/mapper/");
+
+    return is_user_mount_dir || is_block_device;
+}
+
+/// Parses Linux `/proc/mounts` content into deduplicated, unescaped mount paths.
+pub fn parse_linux_mounts(proc_mounts_content: &str) -> Vec<String> {
+    let mut drives = vec!["/".to_string()];
+
+    for line in proc_mounts_content.lines() {
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        if parts.len() < 3 {
+            continue;
+        }
+
+        let device = parts[0];
+        let raw_mount_point = parts[1].replace("\\040", " ");
+        let fs_type = parts[2];
+
+        if is_browsable_linux_mount(device, &raw_mount_point, fs_type)
+            && !drives.contains(&raw_mount_point)
+        {
+            drives.push(raw_mount_point);
+        }
+    }
+
+    return drives;
+}
+
+#[cfg(target_os = "windows")]
+pub fn detect_system_drives() -> Vec<String> {
+    let mut drives = Vec::new();
+    for byte in b'A'..=b'Z' {
+        let root = format_windows_drive_root(byte as char);
+        if std::path::Path::new(&root).exists() {
+            drives.push(root);
+        }
+    }
+    return drives;
+}
+
+#[cfg(target_os = "linux")]
+pub fn detect_system_drives() -> Vec<String> {
+    if let Ok(content) = std::fs::read_to_string("/proc/mounts") {
+        let parsed = parse_linux_mounts(&content);
+        let existing: Vec<String> = parsed
+            .into_iter()
+            .filter(|path| std::path::Path::new(path).exists())
+            .collect();
+        if !existing.is_empty() {
+            return existing;
+        }
+    }
+    return vec!["/".to_string()];
+}
+
+#[cfg(not(any(target_os = "windows", target_os = "linux")))]
+pub fn detect_system_drives() -> Vec<String> {
+    return Vec::new();
 }
 
 /// Returns available OS drives and registers each drive in the Tauri FS security scope.
@@ -32,7 +102,7 @@ pub fn detect_system_drives() -> Vec<String> {
 fn list_system_drives(app: tauri::AppHandle) -> Vec<String> {
     let drives = detect_system_drives();
 
-    #[cfg(target_os = "windows")]
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
     {
         use tauri_plugin_fs::FsExt;
         let scope = app.fs_scope();
@@ -41,10 +111,10 @@ fn list_system_drives(app: tauri::AppHandle) -> Vec<String> {
         }
     }
 
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(not(any(target_os = "windows", target_os = "linux")))]
     let _ = &app;
 
-    drives
+    return drives;
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -67,6 +137,23 @@ mod tests {
     fn formats_windows_drive_root_with_trailing_slash() {
         assert_eq!(format_windows_drive_root('c'), "C:/");
         assert_eq!(format_windows_drive_root('E'), "E:/");
+    }
+
+    #[test]
+    fn parses_ubuntu_linux_proc_mounts_and_filters_system_pseudofs() {
+        let sample_mounts = "\
+sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0
+/dev/nvme0n1p2 / ext4 rw,relatime 0 0
+/dev/nvme0n1p1 /boot/efi vfat rw,relatime 0 0
+/dev/loop0 /snap/core22/864 squashfs ro,nodev,relatime 0 0
+/dev/sda1 /media/ubuntu/My\\040Passport exfat rw,nosuid,nodev 0 0
+/dev/sdb1 /mnt/work_ssd ext4 rw,relatime 0 0
+";
+        let drives = parse_linux_mounts(sample_mounts);
+        assert_eq!(
+            drives,
+            vec!["/", "/media/ubuntu/My Passport", "/mnt/work_ssd"]
+        );
     }
 
     #[cfg(target_os = "windows")]

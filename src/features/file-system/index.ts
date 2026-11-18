@@ -35,6 +35,7 @@ export type { TauriFsTarget } from "./tauri-target";
 export { resolveNativeSystemPath, resolveTauriFsTarget } from "./tauri-target";
 
 export {
+  formatSystemDriveLabel,
   formatWindowsDriveLabel,
   getAvailableStorageRoots,
   getAvailableSystemDrives,

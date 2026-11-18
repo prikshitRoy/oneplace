@@ -109,20 +109,42 @@ export function formatWindowsDriveLabel(mountPath: string): string {
   return `Drive (${driveLetter})`;
 }
 
-/** Queries mounted Windows drives via Tauri IPC. Returns empty on non-Windows platforms for now. */
+/** Formats a Windows or Linux drive mount path into a concise sidebar display label. */
+export function formatSystemDriveLabel(mountPath: string): string {
+  const unified = mountPath.replace(/\\/g, "/").trim();
+  if (unified === "/") {
+    return "System Root (/)";
+  }
+
+  const trimmed = unified.replace(/\/+$/, "");
+  if (/^[A-Za-z]:$/.test(trimmed)) {
+    return formatWindowsDriveLabel(trimmed);
+  }
+
+  const segments = trimmed.split("/").filter(Boolean);
+  const folderName = segments[segments.length - 1] ?? trimmed;
+  return `Drive (${folderName})`;
+}
+
+/** Queries mounted Windows or Linux drives via Tauri IPC. Returns empty on Android/iOS for now. */
 export async function getAvailableSystemDrives(): Promise<SystemDrive[]> {
   try {
-    if (getOsType() !== "windows") {
+    const osType = getOsType();
+    if (osType !== "windows" && osType !== "linux") {
       return [];
     }
 
     const rawDriveRoots = await invoke<string[]>("list_system_drives");
     return rawDriveRoots.map((rawRoot): SystemDrive => {
-      const cleaned = rawRoot.replace(/\\/g, "/").replace(/\/+$/, "");
-      const mountPath = `${cleaned}/`;
+      const unified = rawRoot.replace(/\\/g, "/").trim();
+      const isLinuxRoot = unified === "/";
+      const cleaned = isLinuxRoot ? "/" : unified.replace(/\/+$/, "");
+      const isWindowsDrive = /^[A-Za-z]:$/.test(cleaned);
+      const mountPath = isWindowsDrive ? `${cleaned}/` : cleaned;
+
       return {
-        id: `windows-drive-${cleaned.toLowerCase()}`,
-        label: formatWindowsDriveLabel(mountPath),
+        id: `system-drive-${mountPath.toLowerCase()}`,
+        label: formatSystemDriveLabel(mountPath),
         mountPath,
         rootPath: createVirtualPath("customDrive", "", mountPath),
       };

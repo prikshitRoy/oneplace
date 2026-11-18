@@ -27,9 +27,16 @@ export interface StorageNavigationProps {
   readonly onOpenSettings: () => void;
 }
 
-/** Normalizes a mount path for case-insensitive Windows drive comparisons. */
+/** Normalizes a mount path for Windows and Linux drive comparisons. */
 function normalizeMountKey(rawPath: string | undefined): string {
-  return (rawPath ?? "").replace(/\\/g, "/").replace(/\/+$/, "").toLowerCase();
+  if (!rawPath) {
+    return "";
+  }
+  const unified = rawPath.replace(/\\/g, "/").trim();
+  if (unified === "/") {
+    return "/";
+  }
+  return unified.replace(/\/+$/, "").toLowerCase();
 }
 
 /** Renders both the desktop left sidebar (Locations + Drives) and the mobile bottom bar. */
