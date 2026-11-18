@@ -143,6 +143,7 @@ yarn build
 
 > Newest entry on top. One line per change: date — what changed.
 
+- `2026-11-18` — Added Windows drive detection (`list_system_drives` in Rust + `FsExt` scope registration, `getAvailableSystemDrives`, and sidebar `Drives` section in `StorageNavigation`).
 - `2026-11-18` — Completed full automated and manual cross-platform verification on Ubuntu Linux, Windows, and Android (`APP_TEST_CHECKLIST.md`).
 - `2026-11-18` — Configured Android storage permissions (`AndroidManifest.xml`), mapped Android shared storage roots (`/storage/emulated/0/...`), added SAF folder picker URI normalization, and documented Android/E2E commands.
 - `2026-11-18` — Added Layer 3 Playwright E2E test suite (`playwright.config.ts`, `e2e/tauri-ipc-bridge.ts`, `e2e/explorer.spec.ts`) for Desktop and Mobile viewports.

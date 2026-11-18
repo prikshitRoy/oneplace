@@ -101,6 +101,14 @@ const SEED_NODES: readonly FakeFsNode[] = [
     sizeBytes: 1024,
     mtimeMs: Date.UTC(2026, 10, 17, 15, 0, 0),
   },
+  {
+    baseDir: undefined,
+    parentPath: "E:",
+    name: "Software Projects",
+    isDirectory: true,
+    sizeBytes: 0,
+    mtimeMs: Date.UTC(2026, 10, 17, 16, 0, 0),
+  },
 ];
 
 describe("ExplorerShell UI integration — Platform Roots, Navigation & Views", () => {
@@ -209,5 +217,32 @@ describe("ExplorerShell UI integration — Platform Roots, Navigation & Views", 
     // Assert: button updates to DESC and entries remain rendered
     expect(screen.getByRole("button", { name: /DESC/i })).toBeInTheDocument();
     expect(screen.getByText("zeta.bin")).toBeInTheDocument();
+  });
+
+
+  it("displays detected Windows drives in the sidebar and navigates into a selected drive", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<ExplorerShell />);
+    await screen.findByText("Projects");
+
+    const desktopSidebar = screen.getByRole("complementary", {
+      name: "Storage locations",
+    });
+
+    // Assert: Drive (C:) and Drive (E:) appear under Drives on Windows
+    expect(
+      await within(desktopSidebar).findByRole("button", { name: "Drive (C:)" })
+    ).toBeInTheDocument();
+    const driveEButton = within(desktopSidebar).getByRole("button", {
+      name: "Drive (E:)",
+    });
+
+    // Act: click Drive (E:) in the sidebar
+    await user.click(driveEButton);
+
+    // Assert: loads root entries of E:/ and updates footer location
+    expect(await screen.findByText("Software Projects")).toBeInTheDocument();
+    expect(screen.getByText("Location: E:/")).toBeInTheDocument();
   });
 });

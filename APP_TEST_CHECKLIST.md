@@ -114,6 +114,7 @@ Check off `[x]` for each target platform (`Win` = Windows, `Linux` = Ubuntu Linu
 | 1.4 | Click `Open Folder...` (`Folder` on mobile) | Opens native OS folder picker; selecting a folder shows `Mounted Folder` in sidebar and lists contents | [x] | [x] | [x] |
 | 1.5 | Open a subfolder, then click `Back`, `Forward`, `Up`, and `Refresh` | History buttons enable/disable accurately and return to expected folders | [x] | [x] | [x] |
 | 1.6 | Click an ancestor segment in the Breadcrumb Address Bar | Jumps directly to that parent folder | [x] | [x] | [x] |
+| 1.7 | Check `Drives` section in sidebar (Windows & Linux) | Lists mounted OS drives (`Drive (C:)`, `System Root (/)`, `/mnt/*`, `/media/*`) and browses their contents | [x] | [ ] | N/A |
 
 ### 5.2 View Modes, Sorting & Filtering
 

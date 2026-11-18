@@ -24,3 +24,10 @@ if (typeof window !== "undefined" && !window.matchMedia) {
     }),
   });
 }
+
+import { vi } from "vitest";
+import { fakeInvokeCommand } from "./fake-tauri-fs";
+
+vi.mock("@tauri-apps/api/core", () => ({
+  invoke: (cmd: string) => fakeInvokeCommand(cmd),
+}));
