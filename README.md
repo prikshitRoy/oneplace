@@ -71,17 +71,65 @@ yarn dev
 
 ### 3. Run on Android (USB or Wireless ADB)
 
-1. Ensure your Android device is connected via `adb devices` (and Windows Developer Mode is enabled on Windows 11 so symlinks are permitted).
-2. Tunnel port `3000` over ADB and start the Android development build:
+#### Step 3.1 — Enable Windows 11 Developer Mode (One-Time Setup)
+Tauri creates symbolic links for the compiled Rust library (`libone_place_lib.so`) inside `src-tauri/gen/android/`. On Windows 11, enable **Developer Mode** so non-admin terminals can create symlinks:
 
-~~~bash
+~~~powershell
+start ms-settings:developers
+~~~
+
+Toggle **Developer Mode** to **On**.
+
+#### Step 3.2 — Locate `platform-tools` (`adb`) and Add It to Windows PATH
+If PowerShell reports `'adb' is not recognized`, add the Android SDK `platform-tools` directory to your permanent Windows User `PATH` and current terminal session:
+
+1. **How to find your SDK path:** Open **Android Studio** -> **SDK Manager** (`Settings` -> `Languages & Frameworks` -> `Android SDK`) and copy the **Android SDK Location** at the top (by default: `C:\Users\<YourUsername>\AppData\Local\Android\Sdk`).
+2. **Add `platform-tools` to PATH:** Replace `ROY` below with your own Windows username (or use `$env:LOCALAPPDATA\Android\Sdk\platform-tools`):
+
+~~~powershell
+# Replace "ROY" with your Windows username (or use "$env:LOCALAPPDATA\Android\Sdk\platform-tools")
+$adbPath = "C:\Users\ROY\AppData\Local\Android\Sdk\platform-tools"
+
+# Save permanently to your Windows User PATH (survives PC restarts)
+$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+if ($userPath -notlike "*$adbPath*") {
+  [Environment]::SetEnvironmentVariable("Path", "$userPath;$adbPath", "User")
+}
+
+# Also apply immediately to the active PowerShell window
+$env:Path += ";$adbPath"
+~~~
+
+*(On Ubuntu Linux / macOS, add `export PATH="$HOME/Android/Sdk/platform-tools:$PATH"` to `~/.bashrc` or `~/.zshrc`.)*
+
+#### Step 3.3 — Connect Your Phone via Wireless Debugging (or USB)
+1. On your Android phone, enable **Developer options** -> **Wireless debugging** (ensure your PC and phone are on the same Wi-Fi network).
+2. **First-time pairing only:** Tap **Pair device with pairing code** on your phone and run:
+
+~~~powershell
+adb pair 192.168.xxx.x:xxxxx
+~~~
+
+3. **Connect (required after PC/phone restart or Wi-Fi reconnect):** Look at the main **Wireless debugging** screen on your phone for the current **IP address & Port** (note that Android assigns a new port number when toggling Wireless debugging) and run:
+
+~~~powershell
+adb connect 192.168.xxx.x:xxxxx
+adb devices
+~~~
+
+Confirm your device appears in `adb devices` as `device`.
+
+#### Step 3.4 — Tunnel Port 3000, Launch the App, and Grant Storage Access
+1. Forward port `3000` over ADB (bypasses Windows Firewall / Wi-Fi router isolation) and start the Android build:
+
+~~~powershell
 yarn android:reverse
 yarn android:dev
 ~~~
 
-3. Grant **All Files Access** (`MANAGE_EXTERNAL_STORAGE`) so **One Place** can read and manage shared storage folders:
+2. Once the app installs on your phone, open a second terminal and grant **All Files Access** (`MANAGE_EXTERNAL_STORAGE`) so **One Place** can read and manage shared storage folders:
 
-~~~bash
+~~~powershell
 yarn android:grant-storage
 ~~~
 

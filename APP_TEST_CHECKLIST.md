@@ -66,7 +66,9 @@ yarn test:e2e
 # Run Rust backend tests
 cd src-tauri && cargo test
 
-# Android Dev Setup & Run (over USB or Wireless ADB)
+# Android Dev Setup & Run (reconnect Wireless ADB first if PC/phone restarted)
+adb connect 192.168.xxx.x:xxxxx
+adb devices
 yarn android:reverse
 yarn android:grant-storage
 yarn android:dev
