@@ -143,6 +143,7 @@ yarn build
 
 > Newest entry on top. One line per change: date — what changed.
 
+- `2026-11-18` — Added Ubuntu Linux drive and mount visibility (`parse_linux_mounts` in Rust for `/`, `/media/*`, `/run/media/*`, and `/mnt/*`, plus `formatSystemDriveLabel` and Linux UI integration tests).
 - `2026-11-18` — Added Windows drive detection (`list_system_drives` in Rust + `FsExt` scope registration, `getAvailableSystemDrives`, and sidebar `Drives` section in `StorageNavigation`).
 - `2026-11-18` — Completed full automated and manual cross-platform verification on Ubuntu Linux, Windows, and Android (`APP_TEST_CHECKLIST.md`).
 - `2026-11-18` — Configured Android storage permissions (`AndroidManifest.xml`), mapped Android shared storage roots (`/storage/emulated/0/...`), added SAF folder picker URI normalization, and documented Android/E2E commands.

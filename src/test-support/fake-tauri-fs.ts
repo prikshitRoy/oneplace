@@ -17,6 +17,7 @@ interface FakeFsState {
   pickedFolder: string | null;
   openedPaths: string[];
   windowsDrives: string[];
+  linuxDrives: string[];
   nodes: FakeFsNode[];
 }
 
@@ -27,6 +28,7 @@ const state: FakeFsState = {
   pickedFolder: null,
   openedPaths: [],
   windowsDrives: ["C:/", "E:/"],
+  linuxDrives: ["/", "/mnt/work_ssd"],
   nodes: [],
 };
 
@@ -58,6 +60,7 @@ export function resetFakeFileSystem(
   state.pickedFolder = null;
   state.openedPaths = [];
   state.windowsDrives = osType === "windows" ? ["C:/", "E:/"] : [];
+  state.linuxDrives = osType === "linux" ? ["/", "/mnt/work_ssd"] : [];
   state.nodes = seedNodes.map((node) => ({ ...node }));
 }
 
@@ -260,7 +263,13 @@ export async function fakeOpenPath(nativePath: string): Promise<void> {
 /** Fake implementation of @tauri-apps/api/core invoke() for custom Rust commands. */
 export async function fakeInvokeCommand(cmd: string): Promise<unknown> {
   if (cmd === "list_system_drives") {
-    return state.osType === "windows" ? state.windowsDrives : [];
+    if (state.osType === "windows") {
+      return state.windowsDrives;
+    }
+    if (state.osType === "linux") {
+      return state.linuxDrives;
+    }
+    return [];
   }
   return null;
 }

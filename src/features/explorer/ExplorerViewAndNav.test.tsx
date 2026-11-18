@@ -109,6 +109,14 @@ const SEED_NODES: readonly FakeFsNode[] = [
     sizeBytes: 0,
     mtimeMs: Date.UTC(2026, 10, 17, 16, 0, 0),
   },
+  {
+    baseDir: undefined,
+    parentPath: "mnt/work_ssd",
+    name: "linux-builds",
+    isDirectory: true,
+    sizeBytes: 0,
+    mtimeMs: Date.UTC(2026, 10, 17, 17, 0, 0),
+  },
 ];
 
 describe("ExplorerShell UI integration — Platform Roots, Navigation & Views", () => {
@@ -244,5 +252,34 @@ describe("ExplorerShell UI integration — Platform Roots, Navigation & Views", 
     // Assert: loads root entries of E:/ and updates footer location
     expect(await screen.findByText("Software Projects")).toBeInTheDocument();
     expect(screen.getByText("Location: E:/")).toBeInTheDocument();
+  });
+
+  it("displays System Root (/) and mounted drives on Ubuntu Linux and navigates into them", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    resetFakeFileSystem(SEED_NODES, "linux");
+    render(<ExplorerShell />);
+    await screen.findByText("Projects");
+
+    const desktopSidebar = screen.getByRole("complementary", {
+      name: "Storage locations",
+    });
+
+    // Assert: System Root (/) and Drive (work_ssd) appear under Drives on Linux
+    expect(
+      await within(desktopSidebar).findByRole("button", {
+        name: "System Root (/)",
+      })
+    ).toBeInTheDocument();
+    const linuxDriveButton = within(desktopSidebar).getByRole("button", {
+      name: "Drive (work_ssd)",
+    });
+
+    // Act: click Drive (work_ssd)
+    await user.click(linuxDriveButton);
+
+    // Assert: loads mounted Linux drive entries and updates footer location
+    expect(await screen.findByText("linux-builds")).toBeInTheDocument();
+    expect(screen.getByText("Location: /mnt/work_ssd")).toBeInTheDocument();
   });
 });
