@@ -155,6 +155,8 @@ Check off `[x]` for each target platform (`Win` = Windows, `Linux` = Ubuntu Linu
 | 5.1 | Open `Settings` and switch between `Light`, `Dark`, and `System` | Entire UI (sidebar, address bar, cards, modals) updates contrast immediately | [x] | [x] | [x] |
 | 5.2 | Close and relaunch app after selecting a theme | Saved theme preference persists via `localStorage` | [x] | [x] | [x] |
 | 5.3 | Resize window narrow (`< 768px`) or run on Android | Left sidebar hides and fixed bottom icon bar appears cleanly | [x] | [x] | [x] |
+| 5.4 | Check top toolbar and bottom bar safe-area spacing on Android | Top toolbar sits cleanly below network/time/camera cutout; bottom bar clears gesture pill | N/A | N/A | [x] |
+| 5.5 | Swipe inward from left or right screen edge repeatedly on Android | Closes open modals, clears selection, and navigates back through folder history without exiting app prematurely | N/A | N/A | [x] |
 
 ---
 

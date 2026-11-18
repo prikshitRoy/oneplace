@@ -1,7 +1,7 @@
 // Layer 2 UI integration tests for OS root filtering, custom folder mounting, breadcrumbs, and view/sort controls.
 
 import { BaseDirectory } from "@tauri-apps/api/path";
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -321,5 +321,46 @@ describe("ExplorerShell UI integration — Platform Roots, Navigation & Views", 
     expect(
       screen.getByText("Location: /storage/emulated/0")
     ).toBeInTheDocument();
+  });
+
+  it("navigates back on Android when swiping inward from the left or right screen edge", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    resetFakeFileSystem(SEED_NODES, "android");
+    const { container } = render(<ExplorerShell />);
+    await screen.findByText("Projects");
+
+    // Act: open Projects -> Specs
+    await user.click(screen.getAllByRole("button", { name: "Open" })[0]);
+    await screen.findByText("Specs");
+    await user.click(screen.getByRole("button", { name: "Open" }));
+    expect(await screen.findByText("design.pdf")).toBeInTheDocument();
+
+    const shellRoot = container.firstElementChild as HTMLElement;
+
+    // Act 1: swipe inward from the right edge (x: 380 -> 260) to go back to Projects
+    fireEvent.touchStart(shellRoot, {
+      touches: [{ clientX: 380, clientY: 300 }],
+    });
+    fireEvent.touchEnd(shellRoot, {
+      changedTouches: [{ clientX: 260, clientY: 302 }],
+    });
+
+    // Assert 1: navigated back from Specs to Projects
+    expect(await screen.findByText("Specs")).toBeInTheDocument();
+
+    // Wait past the 300ms back-gesture debounce window
+    await new Promise((resolve) => setTimeout(resolve, 320));
+
+    // Act 2: swipe inward from the left edge (x: 10 -> 120) to go back to Documents
+    fireEvent.touchStart(shellRoot, {
+      touches: [{ clientX: 10, clientY: 300 }],
+    });
+    fireEvent.touchEnd(shellRoot, {
+      changedTouches: [{ clientX: 120, clientY: 305 }],
+    });
+
+    // Assert 2: navigated back to Documents root
+    expect(await screen.findByText("Projects")).toBeInTheDocument();
   });
 });

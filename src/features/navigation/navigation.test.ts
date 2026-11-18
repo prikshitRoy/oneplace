@@ -110,3 +110,74 @@ describe("filterFileEntries and sortFileEntries", () => {
     ]);
   });
 });
+
+import {
+  isInwardEdgeBackSwipe,
+  resolveBackNavigationAction,
+} from "./back-gesture";
+
+describe("isInwardEdgeBackSwipe & resolveBackNavigationAction", () => {
+  it("detects inward horizontal swipes from both the left and right screen edges", () => {
+    expect(
+      isInwardEdgeBackSwipe({
+        startX: 12,
+        startY: 300,
+        endX: 100,
+        endY: 305,
+        viewportWidth: 390,
+      })
+    ).toBe(true);
+
+    expect(
+      isInwardEdgeBackSwipe({
+        startX: 378,
+        startY: 300,
+        endX: 280,
+        endY: 295,
+        viewportWidth: 390,
+      })
+    ).toBe(true);
+
+    expect(
+      isInwardEdgeBackSwipe({
+        startX: 180,
+        startY: 300,
+        endX: 280,
+        endY: 300,
+        viewportWidth: 390,
+      })
+    ).toBe(false);
+  });
+
+  it("prioritizes closing modals and clearing selection before folder history back", () => {
+    expect(
+      resolveBackNavigationAction({
+        hasOpenModal: true,
+        hasSelection: true,
+        isMultiSelectMode: false,
+        canNavigateBack: true,
+        hasParentDirectory: true,
+      })
+    ).toBe("close-modal");
+
+    expect(
+      resolveBackNavigationAction({
+        hasOpenModal: false,
+        hasSelection: true,
+        isMultiSelectMode: false,
+        canNavigateBack: true,
+        hasParentDirectory: true,
+      })
+    ).toBe("clear-selection");
+
+    expect(
+      resolveBackNavigationAction({
+        hasOpenModal: false,
+        hasSelection: false,
+        isMultiSelectMode: false,
+        canNavigateBack: true,
+        hasParentDirectory: true,
+      })
+    ).toBe("history-back");
+  });
+});
